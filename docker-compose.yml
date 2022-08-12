@@ -1,0 +1,29 @@
+version: "3"
+services:
+      client:
+          build: 
+            context: .
+            dockerfile: Dockerfile.dev
+          command: npm run start
+          container_name: client
+          ports:
+              - "3000:3000"        
+          volumes: 
+              - ./:/client
+              - /client/node_modules
+      server:
+          container_name: server
+          image: server/server
+          restart: always
+          build: .
+          ports:
+            - "8080:8080"
+          links:
+            - mongo
+      mongo:
+        container_name: mongo
+        image: mongo
+        volumes:
+          - ./data:/data/db
+        ports:
+          - '27018:27017'
