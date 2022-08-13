@@ -1,4 +1,40 @@
-const Contacts = () => {
+import React, { useState } from 'react';
+
+const Contacts = (props) => {
+    const [ formData, setFormData ] = useState({
+        name:'',
+        email:'',
+        message:''
+    });
+
+    const handleSubmit = (e) => {
+        const form =  e.target;
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify( formData )
+        };
+
+        fetch('http://localhost:8080/contact', requestOptions)
+        .then(response => response.json())
+        .then(data => {
+            alert('Email sent');
+            form.reset();
+        });
+
+        e.preventDefault();
+    }
+
+    const handleInput = (e) => {
+        const { value, name } = e.target;
+
+        setFormData(formData =>({
+            ...formData,//keep same data from obj
+            ...{ [name]: value }//update the new value
+        }));
+
+        e.preventDefault();
+    }
 
     return(
         <div className="contacts-page">
@@ -7,20 +43,20 @@ const Contacts = () => {
             </div>
             <div className="contact-info-container">
                 <div className="contact-form">
-                    <form>
+                    <form onSubmit={handleSubmit}>
                         <div className="form-outline mb-4">
-                            <label className="form-label" htmlFor="form4Example1">Name</label>
-                            <input type="text" id="form4Example1" className="form-control" />
+                            <label className="form-label" htmlFor="name">Name</label>
+                            <input onChange={handleInput} type="text" id="name" name="name" className="form-control" />
                         </div>
 
                         <div className="form-outline mb-4">
-                            <label className="form-label" htmlFor="form4Example2">Email address</label>
-                            <input type="email" id="form4Example2" className="form-control" />
+                            <label className="form-label" htmlFor="email">Email address</label>
+                            <input onChange={handleInput} type="email" id="email" name="email" className="form-control" />
                         </div>
 
                         <div className="form-outline mb-4">
-                            <label className="form-label" htmlFor="form4Example3">Message</label>
-                            <textarea className="form-control" id="form4Example3" rows="4"></textarea>
+                            <label className="form-label" htmlFor="message">Message</label>
+                            <textarea onChange={handleInput} className="form-control" name="message" id="message" rows="4"></textarea>
                         </div>
 
                         <button type="submit" className="btn btn-primary btn-block mb-4">Send</button>

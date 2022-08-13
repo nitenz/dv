@@ -8,6 +8,7 @@ const express = require('express'),
       fs = require('fs'),
       path = require('path'),
       bodyParser = require('body-parser'),
+      nodemailer = require('nodemailer'),
       credentials = {
         user: 'postgres',
         host: 'host.docker.internal',
@@ -78,6 +79,15 @@ app.post('/add/user', jsonParser, function (req, res) {
     console.log('dbq: ',  user.rows[0].id )
     res.send({id: user.rows[0].id});
   })
+})
+
+app.post('/contact', jsonParser, function (req, res) {
+  const data = req.body;
+
+  dbQueries.createContact(data).then( data => {
+    if(data) res.send({message:'sucess!!'})
+  })
+ console.log('tst')
 })
 
 app.use( '/:action', (req,res) => {

@@ -45,23 +45,41 @@ module.exports = {
         `;
         const values = [imovel.location, imovel.price, imovel.tipology, imovel.rooms, imovel.bathRooms, imovel.livingRooms];
         return pool.query(text, values);
-      },
+    },
     getImovel : async function (id) {
         const text = id ? `SELECT * FROM imoveis WHERE id= $1` : `SELECT * FROM imoveis`;
         const values = [id];
         return id ? pool.query(text, values) : pool.query(text);
-      },
+    },
     updateImovel:  async function (imovel) {
         const text = `UPDATE imoveis SET location = $2, price = $3, tipology = $4, rooms = $5, bathRooms= $6, livingRooms = $7 WHERE id = $1`;
         const values = [imovel.id, imovel.location, imovel.price, imovel.tipology, imovel.rooms, imovel.bathRooms, imovel.livingRooms]
         return pool.query(text, values);
-      },
+    },
     deleteImovel: async function (imovelId) {
         const text = `DELETE FROM imoveis WHERE id = $1`;
         const values = [imovelId];
         return pool.query(text, values);
-      }
-  
+    },
+    createContact:  async function (contact) {
+        const text = `
+          INSERT INTO contacts (name, email, message)
+          VALUES ($1, $2, $3)
+          RETURNING id
+        `;
+        const values = [contact.name, contact.email, contact.message];
+        return pool.query(text, values);
+    },
+    getContact : async function (id) {
+        const text = id ? `SELECT * FROM contacts WHERE id= $1` : `SELECT * FROM imoveis`;
+        const values = [id];
+        return id ? pool.query(text, values) : pool.query(text);
+    },
+    deleteContact: async function (contactId) {
+        const text = `DELETE FROM contacts WHERE id = $1`;
+        const values = [contactId];
+        return pool.query(text, values);
+    }
   //retrive admin info
   /*async function getAdmin(userId) {
     const text = `SELECT * FROM admin WHERE id = $1`;

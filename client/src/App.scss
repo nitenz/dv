@@ -355,6 +355,21 @@ footer {
 	h1{
 		padding: 25px;
 	}
+	.image-uploader{
+		position: relative;
+		padding: 25px;
+		#img-select{
+			position: absolute;
+			bottom: 0px;
+			left: 0px;
+		}
+		.image-uploader-preview{
+			float: left;
+			display: flex;
+			margin: 15px;
+		}
+	}
+	
 }
 .create-user{
 	width: 100%;

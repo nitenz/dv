@@ -40,6 +40,16 @@ const createTables = () => {
   );
   `;
 
+  const query_contacts = `
+  CREATE TABLE contacts (
+      id BIGSERIAL,
+      created_at TIMESTAMP DEFAULT NOW(),
+      name varchar,
+      email varchar,
+      message varchar
+  );
+  `;
+
   const query_admin = `
   CREATE TABLE admin (
       id BIGSERIAL,
@@ -48,7 +58,7 @@ const createTables = () => {
   );
   `;
 
-  const tables= [query_users, query_imoveis, query_admin];
+  const tables= [query_users, query_imoveis, query_admin, query_contacts];
 
   //Establish connection to database
   client.connect()

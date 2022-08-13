@@ -2,6 +2,7 @@ import React, { useEffect,useState } from 'react';
 
 const CreateImovel = (props) => {
     const handleEvent = props.event,
+    [imageList, setImageList] = useState([]),
     [ formData, setFormData ] = useState({
         location:'',
         price:'',
@@ -47,18 +48,9 @@ const CreateImovel = (props) => {
         e.preventDefault();
     }
 
-    const handleSelectFile = (e) => {
-        const { value, name } = e.target;
-        let auxData = formData[name];
-
-        auxData.push(value)
-
-        setFormData(formData =>({
-            ...formData,//keep same data from obj
-            ...auxData//update the new value
-        }));
-
-        e.preventDefault();
+    const handleRemoveImageFromList = (e) => {
+        const imgPosition = e.target.parentElement.id;
+        setImageList( imageList.filter( (item,idx) => idx != imgPosition));
     }
 
     return(
@@ -99,18 +91,33 @@ const CreateImovel = (props) => {
                     <input onChange={handleInput} type="number" name="livingrooms" id="livingrooms" className="form-control" />
                     <label className="form-label" htmlFor="livingrooms">Salas de estar</label>
                 </div>
-                
-                <div className="form-outline mb-4">    
-                    <input
-                        type="file"
-                        id="imgfile"
-                        name="imgfile"
-                        onChange={handleSelectFile}
-                    />
-                </div>
-
                 <button type="submit" className="btn btn-primary btn-block mb-4">Criar Imóvel</button>
             </form>
+
+            <div className="image-uploader">
+                <h1>Upload images:</h1>
+                {imageList.map( (img,idx) => {
+                    return img &&
+                    (
+                        <div className="image-uploader-preview" key={idx} id={idx}>
+                            <img alt="not fount" height={"150px"} width={"250px"} src={URL.createObjectURL(img)} />
+                            <button onClick={handleRemoveImageFromList} data-mdb-toggle="tooltip" title="Remove image" >X</button>
+                        </div>
+                    )
+                })}
+                <br />
+                
+                <br /> 
+                <input
+                    id="img-select"
+                    type="file"
+                    name="myImage"
+                    onChange={(event) => {
+                        setImageList([...imageList, event.target.files[0]]);
+                    }}
+                />
+            </div>
+
         </div>
     )
 }
