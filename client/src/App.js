@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 
 import './App.scss';
 
+import Admin from './pages/admin'
 import Nav from './components/nav'
 import Home from './pages/home'
 import RealStatePage from './pages/realstate'
@@ -82,7 +83,8 @@ class App extends React.Component {
       if(mainMenuOption){
         mainMenuOption.children[0].classList.toggle('active');
       }
-      this.setState({page: e.target.name})
+      if(this.state.sideMenuOpen) this.setState({page: e.target.name,sideMenuOpen: !this.state.sideMenuOpen})
+      else this.setState({page: e.target.name})
     }
 
     const handleSideBarMenuEvent = (e) => {
@@ -92,17 +94,21 @@ class App extends React.Component {
     return (
       <div className="page">
         <div className="page-content">
-          <div className="site">
-              <Nav handleMenuEvent={handleMenuEvent} pagePositionY={this.state.pagePositionY} handleSideBarMenuEvent={handleSideBarMenuEvent} sideMenuOpen={this.state.sideMenuOpen} />
+          {
+            this.state.page === 'admin' ? <Admin /> : (
+              <div className="site">
+                <Nav handleMenuEvent={handleMenuEvent} pagePositionY={this.state.pagePositionY} handleSideBarMenuEvent={handleSideBarMenuEvent} sideMenuOpen={this.state.sideMenuOpen} />
+                
+                { 
+                  this.state.page === 'createuser' ?  <CreateUser event={this.handleResetEvenFromSubmit} />  : 
+                  this.state.page === 'realstate' ? <RealStatePage data={this.state.data} /> : 
+                  this.state.page === 'createimovel' ? <CreateImovel event={this.handleResetEvenFromSubmit} /> : <Home />
+                }
               
-              { 
-                this.state.page === 'createuser' ?  <CreateUser event={this.handleResetEvenFromSubmit} />  : 
-                this.state.page === 'realstate' ? <RealStatePage data={this.state.data} /> : 
-                this.state.page === 'createimovel' ? <CreateImovel event={this.handleResetEvenFromSubmit} /> :  <Home />
-              }
-             
-              <Footer />
-          </div>
+                <Footer />
+            </div>
+            )
+          }
         </div>
       </div>
   );

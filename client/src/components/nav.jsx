@@ -27,6 +27,7 @@ const Nav = ( props ) => {
                         <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="realstate" href="#section3">Imóveis</a></li>
                         <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="createimovel">Adicionar Imóvel</a></li>
                         <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="createuser">Criar conta</a></li>
+                        <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="admin">BackOffice</a></li>
                     </ul>
                 </div>
             </div>

@@ -78,20 +78,20 @@ const CreateImovel = (props) => {
                 <div className="row mb-4">
                     <div className="col">
                         <div className="form-outline">
-                            <input onChange={handleInput} type="text" name="location" id="location" className="form-control" />
+                            <input onChange={handleInput} required type="text" name="location" id="location" className="form-control" />
                             <label className="form-label" htmlFor="location">Localização</label>
                         </div>
                     </div>
                     <div className="col">
                         <div className="form-outline">
-                            <input onChange={handleInput} type="text" name="price" id="price" className="form-control" />
+                            <input onChange={handleInput} required type="text" name="price" id="price" className="form-control" />
                             <label className="form-label" htmlFor="price">Preço</label>
                         </div>
                     </div>
                 </div>
 
                 <div className="form-outline mb-4">
-                    <input onChange={handleInput} type="text" name="tipology" id="tipology" className="form-control" />
+                    <input onChange={handleInput} type="text" required name="tipology" id="tipology" className="form-control" />
                     <label className="form-label" htmlFor="tipology">Tipologia</label>
                 </div>
 

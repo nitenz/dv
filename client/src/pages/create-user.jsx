@@ -30,23 +30,28 @@ const CreateUser = (props) =>{
             return strongRegex.test(password);
         }
         const validateFormFields = () => {
-            if( validateEmail && validatePassword && (formData.password === formData.confirmpassword)){
-                const requestOptions = {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify( formData )
-                };
-        
-                if(validateFormFields){
-                    fetch('http://localhost:8080/add/user', requestOptions)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('id: ', data)
-                        alert('user Criado '+ data.id);
-                        handleEvent();
-                    });
-                }
-            }
+            if( validateEmail && validatePassword && (formData.password === formData.confirmpassword)) return true;
+            else return false;
+        }
+
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify( formData )
+        };
+
+        if(validateFormFields){
+            fetch('http://localhost:8080/add/user', requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                console.log('id: ', data)
+                alert('user Criado '+ data.id);
+                handleEvent();
+            });
+        }else{
+            if(validateEmail) alert('Email is inválid!')
+            if(!validatePassword) alert('Password is too weak. Password needs to contain letters, numbers, uppercase letters and special characters')
+            if(formData.password !== formData.confirmpassword) alert('Passwords are different!')
         }
 
         e.preventDefault();
@@ -75,39 +80,39 @@ const CreateUser = (props) =>{
                     </div>
                     <div className="col">
                     <div className="form-outline">
-                        <input onChange={handleInput} type="text" name="username" className="form-control" />
+                        <input onChange={handleInput} required type="text" name="username" className="form-control" />
                         <label className="form-label" htmlFor="username">Username</label>
                     </div>
                     </div>
                 </div>
 
                 <div className="form-outline mb-4">
-                    <input onChange={handleInput} type="text" name="password" id="password" className="form-control" />
-                    <label className="form-label" htmlFor="password">Password</label>
+                    <input onChange={handleInput} required type="text" name="password" id="password" className="form-control" />
+                    <label className="form-label"  htmlFor="password">Password</label>
                 </div>
 
                 <div className="form-outline mb-4">
-                    <input onChange={handleInput} type="text" name="confirmpassword" id="confirmpassword" className="form-control" />
+                    <input onChange={handleInput} required type="text" name="confirmpassword" id="confirmpassword" className="form-control" />
                     <label className="form-label" htmlFor="confirmpassword">Confirm Password</label>
                 </div>
 
                 <div className="form-outline mb-4">
-                    <input onChange={handleInput} type="email" name="email" id="email" className="form-control" />
+                    <input onChange={handleInput} required type="email" name="email" id="email" className="form-control" />
                     <label className="form-label" htmlFor="email">Email</label>
                 </div>
 
                 <div className="form-outline mb-4">
-                    <input onChange={handleInput} type="number" name="phone" id="phone" className="form-control" />
+                    <input onChange={handleInput} required maxLength="9" type="number" name="phone" id="phone" className="form-control" />
                     <label className="form-label" htmlFor="phone">Telemóvel</label>
                 </div>
 
                 <div className="form-outline mb-4">
-                    <input onChange={handleInput} type="number" name="zipcode" id="zipcode" className="form-control" />
+                    <input onChange={handleInput} type="number" maxLength="4" name="zipcode" id="zipcode" className="form-control" />
                     <label className="form-label" htmlFor="zipcode">Código Postal</label>
                 </div>
 
                 <div className="form-outline mb-4">
-                    <input onChange={handleInput} type="number" name="vatnumber" id="vatnumber" className="form-control" />
+                    <input onChange={handleInput} maxLength="12" type="number" name="vatnumber" id="vatnumber" className="form-control" />
                     <label className="form-label" htmlFor="vatnumber">Vat Number</label>
                 </div>
 
