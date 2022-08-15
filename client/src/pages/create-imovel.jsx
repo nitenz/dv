@@ -2,7 +2,6 @@ import React, { useEffect,useState } from 'react';
 
 const CreateImovel = (props) => {
     const handleEvent = props.event,
-    [imageList, setImageList] = useState([]),
     [ formData, setFormData ] = useState({
         location:'',
         price:'',
@@ -10,8 +9,7 @@ const CreateImovel = (props) => {
         rooms: 0,
         bathrooms:0,
         livingrooms:0,
-        imgname: [],
-        imgfile: []
+        imgfiles: []
     });
 
     useEffect(() => {
@@ -19,20 +17,36 @@ const CreateImovel = (props) => {
       }, [])
 
     const handleSubmit = (e) => {
-    
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify( formData )
         };
-
-        fetch('http://localhost:8080/add/imovel', requestOptions)
-        .then(response => response.json())
-        .then(data => {
-            console.log('id: ', data)
-            alert('Imóvel Criado '+ data.id);
-            handleEvent();
-        });
+        if(formData.location && formData.price && formData.tipology){
+            fetch('http://localhost:8080/add/imovel', requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                var dataToSubmit = new FormData();
+    
+                dataToSubmit.append('id', data.id)
+                formData.imgfiles.map(img=>{
+                    dataToSubmit.append('file',img)
+                })
+                
+                const requestOptionsImage = {
+                    method: 'POST',
+                    body:  dataToSubmit
+                };
+    
+                fetch('http://localhost:8080/add/images', requestOptionsImage)
+                .then(response => response.json())
+                .then(data => {
+                    alert('Imóvel Criado '+ data.id);
+                    handleEvent();
+                })
+            });
+        }
+      
 
         e.preventDefault();
     }
@@ -50,7 +64,11 @@ const CreateImovel = (props) => {
 
     const handleRemoveImageFromList = (e) => {
         const imgPosition = e.target.parentElement.id;
-        setImageList( imageList.filter( (item,idx) => idx != imgPosition));
+
+        setFormData( data => ({
+            ...formData,//keep same data from obj
+            ...{ imgfiles: formData.imgfiles.filter( (item,idx) => idx !== Number(imgPosition)) }//update the new value
+        }));
     }
 
     return(
@@ -96,28 +114,43 @@ const CreateImovel = (props) => {
 
             <div className="image-uploader">
                 <h1>Upload images:</h1>
-                {imageList.map( (img,idx) => {
-                    return img &&
-                    (
-                        <div className="image-uploader-preview" key={idx} id={idx}>
-                            <img alt="not fount" height={"150px"} width={"250px"} src={URL.createObjectURL(img)} />
-                            <button onClick={handleRemoveImageFromList} data-mdb-toggle="tooltip" title="Remove image" >X</button>
-                        </div>
-                    )
-                })}
-                <br />
+                <div className="container" >
+                    <div >
+                        {formData.imgfiles.map( (img,idx) => {
+                            return img &&
+                            (
+                                <div className="image-uploader-preview" key={idx} id={idx}>
+                                    <img alt="not fount" height={"150px"} width={"250px"} src={URL.createObjectURL(img)} />
+                                    <button onClick={handleRemoveImageFromList} data-mdb-toggle="tooltip" title="Remove image" >X</button>
+                                </div>
+                            )
+                        })}
+                    </div>
                 
-                <br /> 
-                <input
-                    id="img-select"
-                    type="file"
-                    name="myImage"
-                    onChange={(event) => {
-                        setImageList([...imageList, event.target.files[0]]);
-                    }}
-                />
-            </div>
+                    <div >
+                        <input
+                            id="img-select"
+                            type="file"
+                            name="images"
+                            multiple={true}
+                            onChange={(event) => {
+                                let auxList = formData.imgfiles;
+                                let filesList = event.target.files;
 
+                                for (let key in filesList) {
+                                    if(filesList[key].type) auxList.push(filesList[key])
+                                }
+                            
+                                setFormData( () => ({
+                                    ...formData,//keep same data from obj
+                                    ...{ imgfiles: auxList}//update the new value
+                                }));
+                            }}
+                        />
+                    </div>
+                </div>
+                
+            </div>
         </div>
     )
 }

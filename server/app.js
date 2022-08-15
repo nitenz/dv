@@ -9,6 +9,8 @@ const express = require('express'),
       path = require('path'),
       bodyParser = require('body-parser'),
       nodemailer = require('nodemailer'),
+      multer = require('multer'),
+      upload = multer(),
       credentials = {
         user: 'postgres',
         host: 'host.docker.internal',
@@ -52,23 +54,42 @@ const createImovelData = ( imoveis, action ) => {
 }
 
 app.use(cors())
+//app.use(upload.array()); 
 
 db.initializeDataTable();
 
 //turn public imoveis folter
 app.use('/imoveis', express.static('public/imoveis'))
 
+app.post('/add/images', upload.array('file'), function (req,res) {
+  const imageFiles = req.files,
+        id = req.body.id;
+
+  imageFiles.map( (img, idx) => {
+      const target_path = 'public/imoveis/' + id + '/' + img.originalname;
+
+      fs.writeFile( target_path, img.buffer, err => {
+        if (err) {
+          console.error(err);
+        }
+      });
+      if( idx === imageFiles.length-1) res.send({msg: 'Images uploaded!'})
+  })
+});
+
 app.post('/add/imovel', jsonParser, function (req, res) {
   const data = req.body;
-  
+
+  console.log('data: ', data )
   dbQueries.createImovel(data).then( imovel => {
     const imovelPath = 'public/imoveis/'+imovel.rows[0].id,
-          dir =path.join(__dirname, imovelPath );
+          dir = path.join(__dirname, imovelPath );
 
-    if (!fs.existsSync(dir)){
-        fs.mkdirSync(dir);
-    }
-    res.send({id: imovel.rows[0].id});
+    let filePath = '';
+
+    fs.mkdirSync(dir);
+
+    res.send({id:imovel.rows[0].id})
   })
 })
 

@@ -6,6 +6,7 @@ const CreateUser = (props) =>{
         name:'',
         username:'',
         password:'',
+        confirmpassword:'',
         email: '',
         phone: 0,
         zipcode:0,
@@ -17,20 +18,36 @@ const CreateUser = (props) =>{
       }, [])
 
     const handleSubmit = (e) => {
-    
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify( formData )
-        };
-
-        fetch('http://localhost:8080/add/user', requestOptions)
-        .then(response => response.json())
-        .then(data => {
-            console.log('id: ', data)
-            alert('user Criado '+ data.id);
-            handleEvent();
-        });
+        const validateEmail = () => {
+            if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(formData.email))
+            {
+              return (true)
+            }
+            return (false)
+        }
+        const validatePassword = (password) => {
+            var strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+            return strongRegex.test(password);
+        }
+        const validateFormFields = () => {
+            if( validateEmail && validatePassword && (formData.password === formData.confirmpassword)){
+                const requestOptions = {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify( formData )
+                };
+        
+                if(validateFormFields){
+                    fetch('http://localhost:8080/add/user', requestOptions)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('id: ', data)
+                        alert('user Criado '+ data.id);
+                        handleEvent();
+                    });
+                }
+            }
+        }
 
         e.preventDefault();
     }

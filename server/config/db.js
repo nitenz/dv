@@ -20,8 +20,8 @@ const createTables = () => {
       price varchar,
       tipology varchar,
       rooms int,
-      bathRooms int,
-      livingRooms int
+      bathrooms int,
+      livingrooms int
   );
   `;
 

@@ -23,7 +23,7 @@ const CustomImageGalery = ( props ) => {
 
     return(
         <div>
-            <Carousel cols={3} rows={1} gap={5} loop>
+            <Carousel cols={1} rows={1} gap={5} loop>
                 {
                    createTemplate(data, id)
                 }

@@ -39,11 +39,11 @@ module.exports = {
       },
     createImovel:  async function (imovel) {
         const text = `
-          INSERT INTO imoveis (location, price, tipology, rooms, bathRooms, livingRooms)
+          INSERT INTO imoveis (location, price, tipology, rooms, bathrooms, livingrooms)
           VALUES ($1, $2, $3, $4, $5, $6)
           RETURNING id
         `;
-        const values = [imovel.location, imovel.price, imovel.tipology, imovel.rooms, imovel.bathRooms, imovel.livingRooms];
+        const values = [imovel.location, imovel.price, imovel.tipology, imovel.rooms, imovel.bathrooms, imovel.livingrooms];
         return pool.query(text, values);
     },
     getImovel : async function (id) {

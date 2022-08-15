@@ -8,12 +8,15 @@ const RealState = ( props ) => {
         const realstatePropertiesList = [];
         let tempData = props.data;
 
-        tempData.map( (realStateProperty,idx) => {
-            realstatePropertiesList.push( <CardItem key={idx} item={realStateProperty} /> )
-        })
+        if(tempData && tempData.length){
+            tempData.map( (realStateProperty,idx) => {
+                realstatePropertiesList.push( <CardItem key={idx} item={realStateProperty} /> )
+            })
+            
+    
+            if(realstatePropertiesList.length === tempData.length)  return realstatePropertiesList;   
+        }
         
-
-        if(realstatePropertiesList.length === tempData.length)  return realstatePropertiesList;    
     }
 
     useEffect(() => {

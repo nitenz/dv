@@ -27,7 +27,16 @@ class App extends React.Component {
     };
 
     this.handleResetEvenFromSubmit = () => {
-      this.setState({page: 'home'})
+      return new Promise((resolve, reject) => {
+        fetch('http://localhost:8080/imoveis/')
+        .then(response => response.json())
+        .then(data => {
+            if(data){
+                this.setState({data, page:'home'})
+            }
+        });
+        
+      })
     }
 
     this.handleNavigation = (e) => {
