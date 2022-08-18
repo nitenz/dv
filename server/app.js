@@ -113,11 +113,24 @@ app.post('/contact', jsonParser, function (req, res) {
 
 app.use( '/:action', (req,res) => {
   const action = req.params.action.toLocaleLowerCase();
-  
   if(action === 'imoveis'){
     dbQueries.getImovel().then( data => {
+      console.log('get imoveis: ', data.rows)
       createImovelData(data.rows, action).then( imoveis =>{
-        res.send(imoveis)
+        res.send({data:imoveis, total: imoveis.length})
+      });
+    })
+  }else if(action === 'contacts'){
+    dbQueries.getContact().then( data => {
+
+      createImovelData(data.rows, action).then( imoveis =>{
+        res.send({data:imoveis, total: imoveis.length})
+      });
+    })
+  }else if(action === 'users'){
+    dbQueries.getUser().then( data => {
+      createImovelData(data.rows, action).then( imoveis =>{
+        res.send({data:imoveis, total: imoveis.length})
       });
     })
   }

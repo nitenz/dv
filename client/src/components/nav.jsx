@@ -2,7 +2,7 @@ import React from "react";
 
 import logo from '../imgs/logo.png'
 import imageMenu from '../imgs/menu.png'
-
+import './nav.scss'
 const Nav = ( props ) => {
     const {handleMenuEvent, pagePositionY, handleSideBarMenuEvent, sideMenuOpen } = props;
     

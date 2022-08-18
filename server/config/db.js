@@ -16,7 +16,8 @@ const createTables = () => {
   const query_imoveis = `
   CREATE TABLE imoveis (
       id BIGSERIAL,
-      location varchar,
+      locality varchar,
+      parish varchar,
       price varchar,
       tipology varchar,
       rooms int,
@@ -32,8 +33,7 @@ const createTables = () => {
       name varchar,
       username varchar,
       password varchar,
-      email varchar,
-      address varchar, 
+      email varchar, 
       mobile_number int, 
       zip_code varchar, 
       vat_number int
@@ -58,12 +58,26 @@ const createTables = () => {
   );
   `;
 
+  const query_locality = `
+  CREATE TABLE locality (
+      id BIGSERIAL,
+      name varchar
+  );
+  `;
+
+  const query_parish = `
+  CREATE TABLE parish (
+      id BIGSERIAL,
+      id_locality int,
+      name varchar
+  );
+  `;
+
   const tables= [query_users, query_imoveis, query_admin, query_contacts];
 
   //Establish connection to database
   client.connect()
-
-  tables.forEach( query => {
+  tables.forEach( (query, idx) => {
     client.query(query, (err, res) => {
         if (err) {
           console.log(err.stack)

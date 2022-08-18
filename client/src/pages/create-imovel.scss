@@ -1,0 +1,46 @@
+.create-imovel{
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	padding: 55px;
+	.form-outline{
+		select{
+			margin: 5px;
+		}
+		
+	}
+	h1{
+		padding: 25px;
+	}
+	.image-uploader{
+		position: relative;
+		padding: 25px;
+		display: flex;
+		flex-direction: column;
+		.container {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			#img-select{
+				font-family: calibri;
+				width: 350px;
+				padding: 10px;
+				-webkit-border-radius: 5px;
+				-moz-border-radius: 5px;
+				border: 1px dashed #BBB;
+				text-align: center;
+				background-color: #DDD;
+				cursor: pointer;
+			}
+			.image-uploader-preview{
+				float: left;
+				display: flex;
+				margin: 15px;
+			}
+		}
+	}
+}

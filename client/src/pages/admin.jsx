@@ -1,20 +1,25 @@
-import { PostList, PostEdit, PostCreate } from '../posts/posts';
-import PostIcon from '@mui/icons-material/Book';
+import { ImoveisList, ImoveisEdit, ImoveisCreate } from '../backoffice/imoveis';
+import { UsersList, UsersEdit, UsersCreate } from '../backoffice/users';
+import {ContactsList} from '../backoffice/contact';
+import authProvider from '../backoffice/authProvider'
+import ImoveisIcon from '@mui/icons-material/Book';
+import UserIcon from '@mui/icons-material/Group';
+import ContactIcon from '@mui/icons-material/Message';
 
-import Dashboard from '../Dashboard';
-import authProvider from '../authProvider';
 
-import { Admin, Resource } from 'react-admin';
 
-import jsonServerProvider from 'ra-data-json-server';
+import LoginPage from '../backoffice/login';
+import { Admin, Resource, ListGuesser } from 'react-admin';
 
-const dataProvider = jsonServerProvider('https://jsonplaceholder.typicode.com');
+import dataProvider from '../backoffice/dataProvider';
+//const dataProvider = jsonServerProvider('https://jsonplaceholder.typicode.com');
 
 const AdminPage = () => {
-
     return(
-        <Admin dashboard={Dashboard} authProvider={authProvider} dataProvider={dataProvider}>
-            <Resource icon={PostIcon} name="posts" list={PostList} edit={PostEdit} create={PostCreate} />
+        <Admin authProvider={authProvider} dataProvider={dataProvider}>
+            <Resource name="imoveis" icon={ImoveisIcon} list={ImoveisList} edit={ImoveisEdit} create={ImoveisCreate}  />
+            <Resource name="users" icon={UserIcon} list={UsersList} edit={UsersEdit} create={UsersCreate}  />
+            <Resource name="contacts" icon={ContactIcon} list={ContactsList} />
         </Admin>
     )
 }

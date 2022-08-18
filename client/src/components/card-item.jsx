@@ -11,7 +11,9 @@ const CardItem = (props) => {
 
     const {
         id,
-        location,
+        locality,
+        parish,
+        county,
         price,
         rooms,
         livingrooms,
@@ -21,7 +23,7 @@ const CardItem = (props) => {
     return(
         <div className="card" >
             <div className="card-body">
-                <h5 className="card-title"><b>{location}</b></h5>
+                <h5 className="card-title"><b>{locality+', ' +parish +' - '+ county}</b></h5>
                 <div className="house-info" id={id}>
                     <img src={iconBath}  data-mdb-toggle="tooltip" title="Bath rooms"/> {bathrooms}
                     <img src={iconBed}  data-mdb-toggle="tooltip" title="Sleeping rooms"/> {rooms}

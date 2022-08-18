@@ -1,4 +1,6 @@
 import image from '../imgs/room.jpg'
+import './who.scss'
+
 const Who = () => {
 
     return(

@@ -1,0 +1,31 @@
+.realstate{
+	padding-top: 25px;
+	h1{
+		text-align: center;
+		margin: 50px;
+	}
+	.card > div{
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+	}
+	.card{
+		padding: 25px;
+		.card-body{
+			
+			h5,p{
+				display: inline-block;
+			}
+		}
+	}
+	.filters{
+		.filter-container{
+			display: inline-block;
+			padding: 25px;
+			input{
+				width: 250px;
+			}
+		}
+	}
+}

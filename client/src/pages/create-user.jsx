@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-
+import './create-user.scss'
 const CreateUser = (props) =>{
     const handleEvent = props.event,
     [ formData, setFormData ] = useState({
@@ -8,7 +8,7 @@ const CreateUser = (props) =>{
         password:'',
         confirmpassword:'',
         email: '',
-        phone: 0,
+        mobile_number: 0,
         zipcode:0,
         vatnumber:0
     });
@@ -46,6 +46,16 @@ const CreateUser = (props) =>{
             .then(data => {
                 console.log('id: ', data)
                 alert('user Criado '+ data.id);
+                setFormData({
+                    name:'',
+                    username:'',
+                    password:'',
+                    confirmpassword:'',
+                    email: '',
+                    mobile_number: 0,
+                    zipcode:0,
+                    vatnumber:0
+                })
                 handleEvent();
             });
         }else{
@@ -102,13 +112,13 @@ const CreateUser = (props) =>{
                 </div>
 
                 <div className="form-outline mb-4">
-                    <input onChange={handleInput} required maxLength="9" type="number" name="phone" id="phone" className="form-control" />
-                    <label className="form-label" htmlFor="phone">Telemóvel</label>
+                    <input onChange={handleInput} required maxLength="9" type="number" name="mobile_number" id="mobile_number" className="form-control" />
+                    <label className="form-label" htmlFor="mobile_number">Telemóvel</label>
                 </div>
 
                 <div className="form-outline mb-4">
-                    <input onChange={handleInput} type="number" maxLength="4" name="zipcode" id="zipcode" className="form-control" />
-                    <label className="form-label" htmlFor="zipcode">Código Postal</label>
+                    <input onChange={handleInput} type="number" maxLength="4" name="zip_code" id="zip_code" className="form-control" />
+                    <label className="form-label" htmlFor="zip_code">Código Postal</label>
                 </div>
 
                 <div className="form-outline mb-4">
