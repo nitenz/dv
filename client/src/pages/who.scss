@@ -15,3 +15,15 @@
 		font-weight: 800;
 	}
 }
+
+@media only screen and (max-width: 910px) {
+	.who-page {
+		height: 100vw !important;
+	}
+  }
+  @media only screen and (max-width: 582px) {
+	.who-page {
+		height: 250vw !important;
+	}
+  }
+  

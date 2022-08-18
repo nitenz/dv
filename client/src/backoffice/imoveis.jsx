@@ -18,8 +18,10 @@ import {
 } from 'react-admin';
 
 const ImoveisTitle = () => {
+    /*
     const record = useRecordContext();
     return <span>Imoveis {record ? `"${record.title}"` : ''}</span>;
+    */
 };
 
 export const ImoveisList = (props) => {

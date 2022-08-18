@@ -13,7 +13,7 @@ const Nav = ( props ) => {
                 <img className="logo" src={logo}/>
             </div>
             <div className="nav__logo"></div>
-            <ul className="nav__list">
+            <ul className="nav__list main-menu">
                 <li className="nav__item" onClick={handleMenuEvent}><a name="who" href="#section1">Quem somos</a></li>
                 <li className="nav__item" onClick={handleMenuEvent}><a name="contacts" href="#section2">Contactos</a></li>
                 <li className="nav__item" onClick={handleMenuEvent}><a name="realstate" href="#section3">Imóveis</a></li>

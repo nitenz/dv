@@ -210,3 +210,13 @@ footer {
 	}
 	
 }
+
+@media only screen and (max-width: 1600px) {
+	.nav {
+		.nav__list{
+			&.main-menu{
+				display: none;
+			}
+		}
+	}
+  }

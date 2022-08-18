@@ -39,3 +39,27 @@
 		}
 	}
 }
+
+@media only screen and (max-width: 1000px) {
+	.contacts-page {
+		.contact-info-container{
+			height: 80vw !important;
+		}
+	}
+}
+  
+@media only screen and (max-width: 760px) {
+	.contacts-page {
+		.contact-info-container{
+			height: 100vw !important;
+		}
+	}
+}
+
+@media only screen and (max-width: 600px) {
+	.contacts-page {
+		.contact-info-container{
+			height: 180vw !important;
+		}
+	}
+}
