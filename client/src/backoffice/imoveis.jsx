@@ -56,14 +56,27 @@ export const ImoveisList = (props) => {
 }
 
 export const ImoveisEdit = () => (
-    <Edit title={ImoveisTitle} >
+    <Edit>
         <SimpleForm>
         <TextField source="id" />
             <ReferenceField label="id" source="id" reference="id">
-                <SelectInput source="locality" />
+            <SelectInput source="locality" choices={[
+                  { id:1,name:'Câmara de Lobos'  },
+                  {id:2,name:'Funchal'},
+                  {id:3,name:'Machico'},
+                  {id:4,name:'Porto Moniz'},
+                  {id:5,name:'Porto Santo'},
+                  {id:6,name:'Santa Cruz'},
+                  {id:7,name:'Santana'},
+                  {id:8,name:'São Vicente'}
+            ]} />
             </ReferenceField>
             <TextInput source="price" />
-            <SelectInput source="parish" />
+            <SelectInput source="parish" choices={[
+                { id: 'programming', name: 'Programming' },
+                { id: 'lifestyle', name: 'Lifestyle' },
+                { id: 'photography', name: 'Photography' },
+            ]} />
             <TextInput source="rooms" />
             <TextInput source="bathrooms" />
             <TextInput source="livingrooms" />

@@ -6,13 +6,6 @@ const httpClient = fetchUtils.fetchJson;
 
 const dataProvider= {
     getList: (resource, params) => {
-        const { page, perPage } = params.pagination;
-        const { field, order } = params.sort;
-        const query = {
-            sort: JSON.stringify([field, order]),
-            range: JSON.stringify([(page - 1) * perPage, page * perPage - 1]),
-            filter: JSON.stringify(params.filter),
-        };
         const url = `${apiUrl}/${resource}`;
 
         return new Promise((resolve, reject) => {
@@ -25,11 +18,18 @@ const dataProvider= {
         })
     },
 
-    getOne: (resource, params) =>
-        httpClient(`${apiUrl}/${resource}/${params.id}`).then(({ json }) => ({
-            data: json,
-        })),
+    getOne: (resource, params) => {
+        const url = `${apiUrl}/${resource}/${params.id}`;
 
+        return new Promise((resolve, reject) => {
+            fetch(url)
+            .then(response => response.json())
+            .then( data => {
+                if(data) resolve(data);
+                else reject()
+            } )
+        })
+    },
     getMany: (resource, params) => {
         const query = {
             filter: JSON.stringify({ id: params.ids }),
@@ -57,11 +57,12 @@ const dataProvider= {
         }));
     },
 
-    update: (resource, params) =>
+    update: (resource, params) => {
         httpClient(`${apiUrl}/${resource}/${params.id}`, {
             method: 'PUT',
             body: JSON.stringify(params.data),
-        }).then(({ json }) => ({ data: json })),
+        }).then(({ json }) => ({ data: json }))
+    },
 
     updateMany: (resource, params) => {
         const query = {
@@ -87,12 +88,19 @@ const dataProvider= {
         }).then(({ json }) => ({ data: json })),
 
     deleteMany: (resource, params) => {
-        const query = {
-            filter: JSON.stringify({ id: params.ids}),
-        };
-        return httpClient(`${apiUrl}/${resource}?${stringify(query)}`, {
+        const requestOptions = {
             method: 'DELETE',
-        }).then(({ json }) => ({ data: json }));
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify( { id: params.ids} )
+        };
+    
+        return new Promise((resolve, reject) => {
+            fetch(`${apiUrl}/${resource}`, requestOptions)
+        .then(response => response.json())
+        .then(data => {
+          resolve(data)
+        });
+        })
     }
 };
 

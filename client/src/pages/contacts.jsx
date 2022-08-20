@@ -15,7 +15,7 @@ const Contacts = (props) => {
             body: JSON.stringify( formData )
         };
 
-        fetch('http://localhost:8080/contact', requestOptions)
+        fetch('http://localhost:8080/add/contact', requestOptions)
         .then(response => response.json())
         .then(data => {
             alert('Email sent');

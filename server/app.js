@@ -80,16 +80,28 @@ app.post('/add/images', upload.array('file'), function (req,res) {
 app.post('/add/imovel', jsonParser, function (req, res) {
   const data = req.body;
 
-  console.log('data: ', data )
   dbQueries.createImovel(data).then( imovel => {
     const imovelPath = 'public/imoveis/'+imovel.rows[0].id,
           dir = path.join(__dirname, imovelPath );
 
-    let filePath = '';
-
     fs.mkdirSync(dir);
-
     res.send({id:imovel.rows[0].id})
+  })
+})
+
+app.post('/edit/imovel', jsonParser, function (req, res) {
+  const data = req.body;
+  
+  dbQueries.updateImovel(data).then( imovel => {
+    res.send({id: imovel.rows[0].id});
+  })
+})
+
+app.post('/del/imovel', jsonParser, function (req, res) {
+  const data = req.body;
+  
+  dbQueries.deleteImovel(data.id).then( resp => {
+    res.send( {msg: 'imovel deleted '+ resp });
   })
 })
 
@@ -102,20 +114,59 @@ app.post('/add/user', jsonParser, function (req, res) {
   })
 })
 
-app.post('/contact', jsonParser, function (req, res) {
+app.post('/edit/user', jsonParser, function (req, res) {
+  const data = req.body;
+  
+  dbQueries.updateUser(data).then( user => {
+    res.send({id: user.rows[0].id});
+  })
+})
+
+app.post('/del/user', jsonParser, function (req, res) {
+  const data = req.body;
+  
+  dbQueries.deleteUser(data.id).then( resp => {
+    res.send( {msg: 'user deleted '+ resp });
+  })
+})
+
+app.post('/add/contact', jsonParser, function (req, res) {
   const data = req.body;
 
   dbQueries.createContact(data).then( data => {
     if(data) res.send({message:'sucess!!'})
   })
- console.log('tst')
 })
 
-app.use( '/:action', (req,res) => {
+app.post('/del/contact', jsonParser, function (req, res) {
+  const data = req.body;
+
+  dbQueries.deleteContact(data.id).then( data => {
+    if(data) res.send({message:'sucess!!'})
+  })
+})
+
+app.get('/imoveis/:id', (req,res) => {
+  const id = req.params.id || '';
+
+  console.log('id: ', id)
+    dbQueries.getImovel(id).then( data => {
+      res.send({data:data.rows[0]})
+    })
+});
+
+app.get('/users/:id', (req,res) => {
+  const id = req.params.id || '';
+
+  dbQueries.getUser(id).then( data => {
+    res.send({data:data.rows[0]})
+  })
+});
+
+app.use('/:action/', (req,res) => {
   const action = req.params.action.toLocaleLowerCase();
   if(action === 'imoveis'){
     dbQueries.getImovel().then( data => {
-      console.log('get imoveis: ', data.rows)
       createImovelData(data.rows, action).then( imoveis =>{
         res.send({data:imoveis, total: imoveis.length})
       });
@@ -136,22 +187,30 @@ app.use( '/:action', (req,res) => {
   }
 });
 
-//general route
-app.use('/:action/:id', (req, res) => {
-  (async () => {
-    try{
-      const action = req.params.action.toLocaleLowerCase();
-      const id = req.params.id;
-      
-      console.log('oi')
-      
-    }catch(err){
-      console.log(err)
-      res.send({
-       error: err
+app.use( '/:action/:id', (req,res) => {
+  const action = req.params.action.toLocaleLowerCase();
+  const id = req.params.id || '';
+  console.log('id: ', id )
+  if(action === 'imoveis'){
+    dbQueries.getImovel(id).then( data => {
+      createImovelData(data.rows[0], action).then( imoveis =>{
+        res.send({data:imoveis.r, total: imoveis.length})
       });
-    }
-  })()
+    })
+  }else if(action === 'contacts'){
+    dbQueries.getContact().then( data => {
+
+      createImovelData(data.rows, action).then( imoveis =>{
+        res.send({data:imoveis, total: imoveis.length})
+      });
+    })
+  }else if(action === 'users'){
+    dbQueries.getUser().then( data => {
+      createImovelData(data.rows, action).then( imoveis =>{
+        res.send({data:imoveis, total: imoveis.length})
+      });
+    })
+  }
 });
 
 app.listen(port, () => {
