@@ -1,6 +1,7 @@
 
 import React from 'react'
 import Carousel from 'better-react-carousel'
+import './custom-img-galery.scss'
 
 const CustomImageGalery = ( props ) => {
     const data = props.data.img;
@@ -13,7 +14,7 @@ const CustomImageGalery = ( props ) => {
             imageList.map( (img, idx ) => {
                 templateList.push(
                     <Carousel.Item key={idx}>
-                        <img alt={img} width="100%" height="574px" src={`http://localhost:8080/imoveis/${id}/${img}` } />
+                        <img className="custom-galery-img" alt={img.title} src={img.src} />
                     </Carousel.Item>
                 )
             })
@@ -22,7 +23,7 @@ const CustomImageGalery = ( props ) => {
     }
 
     return(
-        <div>
+        <div className="custom-galery">
             <Carousel cols={1} rows={1} gap={5} loop>
                 {
                    createTemplate(data, id)

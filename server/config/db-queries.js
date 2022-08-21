@@ -28,8 +28,8 @@ module.exports = {
         return id ? pool.query(text, values) : pool.query(text);
       },
     updateUser: async function (user) {
-        const text = `UPDATE users SET name = $2, email = $3, username = $4, mobile_number = $6, zip_code = $7, vat_number = $8 WHERE id = $1`;
-        const values = [user.id, user.name, user.email, user.username, user.mobile_number, user.zip_code, user.vat_number];
+        const text = `UPDATE users SET name = $2, email = $3, username = $4, password= $5, mobile_number = $6, zip_code = $7, vat_number = $8 WHERE id = $1`;
+        const values = [user.id, user.name, user.email, user.username, user.password, user.mobile_number, user.zip_code, user.vat_number];
         return pool.query(text, values);
       },
     deleteUser: async function (userId) {

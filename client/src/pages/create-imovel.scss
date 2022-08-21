@@ -6,6 +6,8 @@
 	justify-content: center;
 	flex-direction: column;
 	padding: 55px;
+	form{
+	}
 	.form-outline{
 		select{
 			margin: 5px;
@@ -41,6 +43,14 @@
 				display: flex;
 				margin: 15px;
 			}
+		}
+	}
+}
+@media only screen and (max-width: 470px) {
+	.create-imovel{
+		form{
+			width: 320px;
+			padding: 25px;
 		}
 	}
 }

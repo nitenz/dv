@@ -23,24 +23,32 @@ const jsonParser = bodyParser.json()
 const client = new Client(credentials);
 
 const saveImoveisImages = (imovelPath, imovel ) => {
+ 
   return new Promise((resolve, reject) => {
+    let tempFiles = [];
 
     fs.readdir( path.join(__dirname, imovelPath ), (err, files) => {
-      imovel.img=files;
-      resolve(imovel)
-    });
 
+      files.map( (img,idx) => {
+        tempFiles.push( {src: 'http://localhost:8080/imoveis/'+imovel.id+'/'+img, title: img.split('.')[0]} )
+
+        if(idx === files.length-1){
+          imovel.img=tempFiles;
+          resolve(imovel)
+        }
+      })
+    });
   })
 }
 
-const createImovelData = ( imoveis, action ) => {
+const createImovelData = (imoveis) => {
   let imoveisList = [];
   const nElements = imoveis.length;
 
   return new Promise((resolve, reject) => {
 
     imoveis.map( item => {
-      const imovelPath = 'public/'+action+'/'+item.id;
+      const imovelPath = 'public/imoveis/'+item.id;
 
       saveImoveisImages(imovelPath, item).then( imovel => {
         imoveisList.push(imovel);
@@ -61,6 +69,7 @@ db.initializeDataTable();
 //turn public imoveis folter
 app.use('/imoveis', express.static('public/imoveis'))
 
+
 app.post('/add/images', upload.array('file'), function (req,res) {
   const imageFiles = req.files,
         id = req.body.id;
@@ -77,9 +86,30 @@ app.post('/add/images', upload.array('file'), function (req,res) {
   })
 });
 
-app.post('/add/imovel', jsonParser, function (req, res) {
+/****************************** IMOVEIS CRUD  ***********************************/
+app.get('/imoveis/', (req,res) => {
+  dbQueries.getImovel().then( data => {
+    createImovelData(data.rows).then( imoveis =>{
+      res.send({data:imoveis, total: imoveis.length})
+    });
+  })
+});
+
+app.get('/imoveis/:id', (req,res) => {
+  const id = req.params.id;
+
+  dbQueries.getImovel(id).then( data => {
+    createImovelData(data.rows).then( imoveis =>{
+      console.log('imoveis: ', imoveis)
+      res.send({data:imoveis[0]})
+    });
+  })
+});
+
+app.post('/imoveis', jsonParser, function (req, res) {
   const data = req.body;
 
+  console.log('data: ', data)
   dbQueries.createImovel(data).then( imovel => {
     const imovelPath = 'public/imoveis/'+imovel.rows[0].id,
           dir = path.join(__dirname, imovelPath );
@@ -97,15 +127,42 @@ app.post('/edit/imovel', jsonParser, function (req, res) {
   })
 })
 
-app.post('/del/imovel', jsonParser, function (req, res) {
-  const data = req.body;
+app.delete('/imoveis/', jsonParser, function (req, res) {
+  const data = req.body.id;
+  let limit = data.length;
   
-  dbQueries.deleteImovel(data.id).then( resp => {
-    res.send( {msg: 'imovel deleted '+ resp });
-  })
-})
+  if(Array.isArray(data) ){
+    data.map( (id, idx) => {
 
-app.post('/add/user', jsonParser, function (req, res) {
+      dbQueries.deleteImovel(id);
+      if(idx === limit){
+        res.send( {msg: 'Imovel deleted '+ data });
+      }
+    })
+  }else{
+    dbQueries.deleteImovel(data).then( resp => {
+      res.send( {msg: 'Imovel deleted '+ resp.rows[0] });
+    })
+  }
+})
+/****************************** END IMOVEIS CRUD  ***********************************/
+
+/****************************** USERS CRUD  ***********************************/
+app.get('/users/', (req,res) => {
+  dbQueries.getUser().then( users => {
+    res.send({data:users.rows, total: users.rowCount})
+  })
+});
+
+app.get('/users/:id', (req,res) => {
+  const id = req.params.id;
+  
+  dbQueries.getUser(id).then( users => {
+    res.send({data:users.rows[0]})
+  })
+});
+
+app.post('/users', jsonParser, function (req, res) {
   const data = req.body;
   
   dbQueries.createUser(data).then( user => {
@@ -114,21 +171,45 @@ app.post('/add/user', jsonParser, function (req, res) {
   })
 })
 
-app.post('/edit/user', jsonParser, function (req, res) {
+app.put('/users/:id', jsonParser, function (req, res) {
   const data = req.body;
+  const id = req.params.id;
+  
+  console.log('data: ',data)
   
   dbQueries.updateUser(data).then( user => {
-    res.send({id: user.rows[0].id});
+    res.send({id: user.rows[0]});
   })
 })
 
-app.post('/del/user', jsonParser, function (req, res) {
-  const data = req.body;
+app.delete('/users/', jsonParser, function (req, res) {
+  const data = req.body.id;
+  let limit = data.length;
   
-  dbQueries.deleteUser(data.id).then( resp => {
-    res.send( {msg: 'user deleted '+ resp });
-  })
+  if(Array.isArray(data) ){
+    data.map( (id, idx) => {
+
+      dbQueries.deleteUser(id);
+      if(idx === limit){
+        res.send( {msg: 'user deleted '+ data });
+      }
+    })
+  }else{
+    dbQueries.deleteUser(data).then( resp => {
+      res.send( {msg: 'user deleted '+ resp.rows[0] });
+    })
+  }
 })
+/****************************** END USERS CRUD  ***********************************/
+
+/****************************** CONTACTS CRUD  ***********************************/
+app.get('/contacts/', (req,res) => {
+  const id = req.params.id || '';
+ 
+  dbQueries.getContact().then( contact => {
+    res.send({data:contact.rows, total: contact.rowCount})
+  })
+});
 
 app.post('/add/contact', jsonParser, function (req, res) {
   const data = req.body;
@@ -138,80 +219,25 @@ app.post('/add/contact', jsonParser, function (req, res) {
   })
 })
 
-app.post('/del/contact', jsonParser, function (req, res) {
-  const data = req.body;
+app.delete('/contacts/', jsonParser, function (req, res) {
+  const data = req.body.id;
+  let limit = data.length;
+  
+  if(Array.isArray(data) ){
+    data.map( (id, idx) => {
 
-  dbQueries.deleteContact(data.id).then( data => {
-    if(data) res.send({message:'sucess!!'})
-  })
+      dbQueries.deleteContact(id);
+      if(idx === limit){
+        res.send( {msg: 'Imovel deleted '+ data });
+      }
+    })
+  }else{
+    dbQueries.deleteContact(data).then( resp => {
+      res.send( {msg: 'Imovel deleted '+ resp.rows[0] });
+    })
+  }
 })
-
-app.get('/imoveis/:id', (req,res) => {
-  const id = req.params.id || '';
-
-  console.log('id: ', id)
-    dbQueries.getImovel(id).then( data => {
-      res.send({data:data.rows[0]})
-    })
-});
-
-app.get('/users/:id', (req,res) => {
-  const id = req.params.id || '';
-
-  dbQueries.getUser(id).then( data => {
-    res.send({data:data.rows[0]})
-  })
-});
-
-app.use('/:action/', (req,res) => {
-  const action = req.params.action.toLocaleLowerCase();
-  if(action === 'imoveis'){
-    dbQueries.getImovel().then( data => {
-      createImovelData(data.rows, action).then( imoveis =>{
-        res.send({data:imoveis, total: imoveis.length})
-      });
-    })
-  }else if(action === 'contacts'){
-    dbQueries.getContact().then( data => {
-
-      createImovelData(data.rows, action).then( imoveis =>{
-        res.send({data:imoveis, total: imoveis.length})
-      });
-    })
-  }else if(action === 'users'){
-    dbQueries.getUser().then( data => {
-      createImovelData(data.rows, action).then( imoveis =>{
-        res.send({data:imoveis, total: imoveis.length})
-      });
-    })
-  }
-});
-
-app.use( '/:action/:id', (req,res) => {
-  const action = req.params.action.toLocaleLowerCase();
-  const id = req.params.id || '';
-  console.log('id: ', id )
-  if(action === 'imoveis'){
-    dbQueries.getImovel(id).then( data => {
-      createImovelData(data.rows[0], action).then( imoveis =>{
-        res.send({data:imoveis.r, total: imoveis.length})
-      });
-    })
-  }else if(action === 'contacts'){
-    dbQueries.getContact().then( data => {
-
-      createImovelData(data.rows, action).then( imoveis =>{
-        res.send({data:imoveis, total: imoveis.length})
-      });
-    })
-  }else if(action === 'users'){
-    dbQueries.getUser().then( data => {
-      createImovelData(data.rows, action).then( imoveis =>{
-        res.send({data:imoveis, total: imoveis.length})
-      });
-    })
-  }
-});
+/****************************** END CONTACTS CRUD  ***********************************/
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

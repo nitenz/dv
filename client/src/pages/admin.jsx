@@ -6,7 +6,7 @@ import ImoveisIcon from '@mui/icons-material/Book';
 import UserIcon from '@mui/icons-material/Group';
 import ContactIcon from '@mui/icons-material/Message';
 
-
+import './admin.scss'
 
 import LoginPage from '../backoffice/login';
 import { Admin, Resource, ListGuesser } from 'react-admin';

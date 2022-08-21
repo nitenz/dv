@@ -12,6 +12,8 @@ import {
     Edit,
     SimpleForm,
     ReferenceInput,
+    NumberField,
+    NumberInput,
     SelectInput,
     TextInput,
     Create
@@ -39,9 +41,9 @@ export const UsersList = (props) => {
                     <TextField source="username" />
                     <TextField source="password" />
                     <TextField source="email" />
-                    <TextField source="mobile_number" />
-                    <TextField source="zip_code" />
-                    <TextField source="vat_number" />
+                    <NumberField source="mobile_number" />
+                    <NumberField source="zip_code" />
+                    <NumberField source="vat_number" />
                     <EditButton />
                 </Datagrid>
             )}
@@ -52,15 +54,15 @@ export const UsersList = (props) => {
 export const UsersEdit = () => (
     <Edit>
         <SimpleForm>
-            <TextField source="id" />
-            <TextField source="created_at" />
-            <TextField source="name" />
-            <TextField source="username" />
-            <TextField source="password" />
-            <TextField source="email" />
-            <TextField source="mobile_number" />
-            <TextField source="zip_code" />
-            <TextField source="vat_number" />
+        <TextField source="id" />
+            <ReferenceField label="id" source="id" reference="id"> </ReferenceField>
+            <TextInput source="name" />
+            <TextInput source="username" />
+            <TextInput source="password" />
+            <TextInput source="email" />
+            <NumberInput source="mobile_number" />
+            <NumberInput source="zip_code" />
+            <NumberInput source="vat_number" />
         </SimpleForm>
     </Edit>
 );
@@ -69,13 +71,14 @@ export const UsersCreate = props => (
     <Create {...props}>
         <SimpleForm>
         <TextField source="id" />
-            <TextField source="name" />
-            <TextField source="username" />
-            <TextField source="password" />
-            <TextField source="email" />
-            <TextField source="mobile_number" />
-            <TextField source="zip_code" />
-            <TextField source="vat_number" />
+            <ReferenceField label="id" source="id" reference="id"> </ReferenceField>
+            <TextInput source="name" />
+            <TextInput source="username" />
+            <TextInput source="password" />
+            <TextInput source="email" />
+            <NumberInput source="mobile_number" />
+            <NumberInput source="zip_code" />
+            <NumberInput source="vat_number" />
         </SimpleForm>
     </Create>
 );

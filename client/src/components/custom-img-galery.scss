@@ -1,0 +1,15 @@
+.custom-galery{
+    .custom-galery-img{
+        width: 100%;
+        height: 574px;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .custom-galery{
+        .custom-galery-img{
+            width: 100%;
+            height: 274px;
+        }
+    }
+}

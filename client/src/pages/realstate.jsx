@@ -4,11 +4,18 @@ import React, { useEffect, useState } from 'react';
 
 const RealState = ( props ) => {
     const [realStateData, setRealStateData] = useState({
-        imoveisList: props.data.data,
+        imoveisList: props.data.data || getData(),
         locality: '',
         price: ''
     });
 
+    const getData = () => {
+        fetch('http://localhost:8080/imoveis/')
+        .then(response => response.json())
+        .then(data => {
+            return data;
+        });
+    }
     const applyFilterToImoveisList = (name, value) => {
         return new Promise( (resolve, reject) => {
             let auxIdx = 0;
@@ -24,6 +31,8 @@ const RealState = ( props ) => {
                     return (imovel.locality.toLowerCase().trim() === value.toLowerCase().trim());
                 }else if(name === 'price' && !realStateData.locality){
                     return (imovel.price.toLowerCase().trim() === value.toLowerCase().trim());
+                }else if(name === 'price' && realStateData.locality){
+                    return (imovel.price.toLowerCase().trim() === value.toLowerCase().trim()) && (imovel.locality.toLowerCase().trim() === realStateData.locality.toLowerCase().trim());
                 }else if(name==='locality' && value === '' && realStateData.price){
                     return (imovel.price.toLowerCase().trim() === realStateData.price.toLowerCase().trim());
                 }

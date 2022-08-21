@@ -34,8 +34,12 @@ const dataProvider= {
         const query = {
             filter: JSON.stringify({ id: params.ids }),
         };
-        const url = `${apiUrl}/${resource}?${stringify(query)}`;
-        return httpClient(url).then(({ json }) => ({ data: json }));
+        if(resource !== 'id'){
+            const url = `${apiUrl}/${resource}?${stringify(query)}`;
+            return httpClient(url).then(({ json }) => ({ data: json }));
+        }else{
+            return new Promise((resolve, reject) => { resolve()})
+        }
     },
 
     getManyReference: (resource, params) => {
@@ -82,10 +86,21 @@ const dataProvider= {
             data: { ...params.data, id: json.id },
         })),
 
-    delete: (resource, params) =>
-        httpClient(`${apiUrl}/${resource}/${params.id}`, {
+    delete: (resource, params) => {
+        const requestOptions = {
             method: 'DELETE',
-        }).then(({ json }) => ({ data: json })),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify( { id: params.id} )
+        };
+    
+        return new Promise((resolve, reject) => {
+            fetch(`${apiUrl}/${resource}`, requestOptions)
+            .then(response => response.json())
+            .then(data => {
+            resolve(data)
+            });
+        })
+    },
 
     deleteMany: (resource, params) => {
         const requestOptions = {
@@ -96,10 +111,10 @@ const dataProvider= {
     
         return new Promise((resolve, reject) => {
             fetch(`${apiUrl}/${resource}`, requestOptions)
-        .then(response => response.json())
-        .then(data => {
-          resolve(data)
-        });
+            .then(response => response.json())
+            .then(data => {
+            resolve(data)
+            });
         })
     }
 };
