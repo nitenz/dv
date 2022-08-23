@@ -84,12 +84,13 @@ const CreateImovel = (props) => {
             body: JSON.stringify( formData )
         };
         if(formData.locality && formData.price && formData.tipology){
-            fetch('http://localhost:8080/add/imovel', requestOptions)
+            fetch('http://localhost:8080/imoveis', requestOptions)
             .then(response => response.json())
             .then(data => {
+                const id = data.data.id;
                 var dataToSubmit = new FormData();
                 setIsLoading(true);
-                dataToSubmit.append('id', data.id)
+                dataToSubmit.append('id',id)
                 formData.imgfiles.map(img=>{
                     dataToSubmit.append('file',img)
                 })
@@ -102,9 +103,10 @@ const CreateImovel = (props) => {
                 fetch('http://localhost:8080/add/images', requestOptionsImage)
                 .then(response => response.json())
                 .then(data => {
-                    alert('Imóvel Criado');
-                    
-                    handleEvent( setIsLoading(false) );
+                    if(data.msg){
+                        alert(data.msg);
+                        handleEvent(setIsLoading(false) );
+                    }
                 })
             });
         }
@@ -234,9 +236,7 @@ const CreateImovel = (props) => {
                             <input
                                 id="img-select"
                                 type="file"
-                                name="images"
                                 multiple={true}
-                              
                                 onChange={(event) => {
                                     let auxList = formData.imgfiles;
                                     let filesList = event.target.files;

@@ -11,6 +11,7 @@ const express = require('express'),
       nodemailer = require('nodemailer'),
       multer = require('multer'),
       upload = multer(),
+      jwt = require('jsonwebtoken'),
       credentials = {
         user: 'postgres',
         host: 'host.docker.internal',
@@ -18,6 +19,9 @@ const express = require('express'),
         password: 'postgrespw',
         port: 49153,
       };
+
+
+require('dotenv').config();
 
 const jsonParser = bodyParser.json()
 const client = new Client(credentials);
@@ -28,15 +32,18 @@ const saveImoveisImages = (imovelPath, imovel ) => {
     let tempFiles = [];
 
     fs.readdir( path.join(__dirname, imovelPath ), (err, files) => {
-
-      files.map( (img,idx) => {
-        tempFiles.push( {src: 'http://localhost:8080/imoveis/'+imovel.id+'/'+img, title: img.split('.')[0]} )
-
-        if(idx === files.length-1){
-          imovel.img=tempFiles;
-          resolve(imovel)
-        }
-      })
+      if(files.length>0){
+        files.map( (img,idx) => {
+          tempFiles.push( {src: 'http://localhost:8080/imoveis/'+imovel.id+'/'+img, title: img.split('.')[0]} )
+  
+          if(idx === files.length-1){
+            imovel.img=tempFiles;
+            resolve(imovel)
+          }
+        })
+      }else{
+        resolve(imovel)
+      }
     });
   })
 }
@@ -46,13 +53,12 @@ const createImovelData = (imoveis) => {
   const nElements = imoveis.length;
 
   return new Promise((resolve, reject) => {
-
-    imoveis.map( item => {
+    imoveis.map(item => {
       const imovelPath = 'public/imoveis/'+item.id;
 
-      saveImoveisImages(imovelPath, item).then( imovel => {
+      saveImoveisImages(imovelPath, item).then(imovel => {
         imoveisList.push(imovel);
-
+       
         if(imoveisList.length === nElements){
           resolve(imoveisList)
         }
@@ -62,13 +68,38 @@ const createImovelData = (imoveis) => {
 }
 
 app.use(cors())
-//app.use(upload.array()); 
-
 db.initializeDataTable();
 
 //turn public imoveis folter
 app.use('/imoveis', express.static('public/imoveis'))
 
+app.post('/authenticate', jsonParser, (req,res) => {
+  const data = req.body;
+
+  dbQueries.getUserByFieldAndValue('username', data.username).then( (user) => {
+    const userData = user.rows[0];
+  
+    if(userData.password === data.password){
+      const token = jwt.sign(
+        {
+          data: {
+            username: userData.username, 
+            id: userData.id, 
+            email: userData.email,
+            role: 'admin'
+          } 
+        },
+        process.env.JWT_KEY,
+        {
+          expiresIn: "2h",
+        }
+      );
+      res.status(200).send({token});
+    }else{
+      res.status(401).send({message:'Invalid password'})
+    }
+  })
+});
 
 app.post('/add/images', upload.array('file'), function (req,res) {
   const imageFiles = req.files,
@@ -82,15 +113,15 @@ app.post('/add/images', upload.array('file'), function (req,res) {
           console.error(err);
         }
       });
-      if( idx === imageFiles.length-1) res.send({msg: 'Images uploaded!'})
+      if(idx === imageFiles.length-1) res.send({msg: 'Images uploaded!'})
   })
 });
 
 /****************************** IMOVEIS CRUD  ***********************************/
 app.get('/imoveis/', (req,res) => {
-  dbQueries.getImovel().then( data => {
-    createImovelData(data.rows).then( imoveis =>{
-      res.send({data:imoveis, total: imoveis.length})
+  dbQueries.getImovel().then( imoveisList => { 
+    createImovelData(imoveisList.rows).then( imoveisListWithImages =>{
+      res.send({data:imoveisListWithImages, total: imoveisListWithImages.length})
     });
   })
 });
@@ -100,7 +131,6 @@ app.get('/imoveis/:id', (req,res) => {
 
   dbQueries.getImovel(id).then( data => {
     createImovelData(data.rows).then( imoveis =>{
-      console.log('imoveis: ', imoveis)
       res.send({data:imoveis[0]})
     });
   })
@@ -109,39 +139,62 @@ app.get('/imoveis/:id', (req,res) => {
 app.post('/imoveis', jsonParser, function (req, res) {
   const data = req.body;
 
-  console.log('data: ', data)
   dbQueries.createImovel(data).then( imovel => {
     const imovelPath = 'public/imoveis/'+imovel.rows[0].id,
-          dir = path.join(__dirname, imovelPath );
+          dir = path.join(__dirname, imovelPath ),
+          id = imovel.rows[0].id;
 
     fs.mkdirSync(dir);
-    res.send({id:imovel.rows[0].id})
-  })
-})
 
-app.post('/edit/imovel', jsonParser, function (req, res) {
-  const data = req.body;
-  
-  dbQueries.updateImovel(data).then( imovel => {
-    res.send({id: imovel.rows[0].id});
+    if(data.files){
+      data.files.map((img, idx) => {
+        const target_path = 'public/imoveis/' + id + '/' + img.title;
+        
+        fs.writeFile(target_path, img.src, err => {
+          if (err) {
+            console.error(err);
+          }
+        });
+        if(idx === data.files.length-1) res.send({data:{id}})
+    })
+    }else{
+      res.send({data:{id}})
+    }
   })
 })
 
 app.delete('/imoveis/', jsonParser, function (req, res) {
   const data = req.body.id;
   let limit = data.length;
-  
+
   if(Array.isArray(data) ){
     data.map( (id, idx) => {
+      const imovelPath = 'public/imoveis/'+id;
 
-      dbQueries.deleteImovel(id);
+      dbQueries.deleteImovel(id).then( data => {
+        try {
+            fs.rmdirSync(imovelPath, { recursive: true });
+        
+            console.log(`${imovelPath} is deleted!`);
+        } catch (err) {
+            console.error(`Error while deleting ${imovelPath}.`);
+        }
+      })
       if(idx === limit){
-        res.send( {msg: 'Imovel deleted '+ data });
+        res.status(200).send(  {data: {msg: 'Imovel deleted '+ data} });
       }
     })
   }else{
     dbQueries.deleteImovel(data).then( resp => {
-      res.send( {msg: 'Imovel deleted '+ resp.rows[0] });
+      const imovelPath = 'public/imoveis/'+data;
+        try {
+          fs.rm(imovelPath, { recursive: true }, () => {
+            res.status(200).send(  {data: {msg: 'Imovel deleted '+ resp.rows[0]} });
+          })
+          console.log(`${imovelPath} is deleted!`);
+        } catch (err) {
+            console.error(`Error while deleting ${dir}.`);
+        }
     })
   }
 })
@@ -165,18 +218,27 @@ app.get('/users/:id', (req,res) => {
 app.post('/users', jsonParser, function (req, res) {
   const data = req.body;
   
-  dbQueries.createUser(data).then( user => {
-    console.log('dbq: ',  user.rows[0].id )
-    res.send({id: user.rows[0].id});
+  dbQueries.getUserByFieldAndValue( 'email', data.email).then( userDataEmail => {
+    if(userDataEmail.rowCount === 0){
+      dbQueries.getUserByFieldAndValue( 'username', data.username).then(userDataUsername => {
+        if(userDataUsername.rowCount === 0){
+          dbQueries.createUser(data).then( user => {
+            res.send({id: user.rows[0].id});
+          })
+        }else{
+          res.send({message: 'Username already exists in the database!'});  
+        }
+      })
+    }else{
+      res.send({message: 'Email already exists in the database!'});  
+    }
   })
 })
 
 app.put('/users/:id', jsonParser, function (req, res) {
   const data = req.body;
   const id = req.params.id;
-  
-  console.log('data: ',data)
-  
+    
   dbQueries.updateUser(data).then( user => {
     res.send({id: user.rows[0]});
   })

@@ -81,7 +81,6 @@ const parishes = {
 };
 
 export const ImoveisList = (props) => {
-    console.log('props: ', props)
     const isSmall = useMediaQuery(theme => theme.breakpoints.down('sm'));
     return (
         <List>
@@ -103,7 +102,6 @@ export const ImoveisList = (props) => {
                     <NumberField source="rooms" />
                     <NumberField source="bathrooms" />
                     <NumberField source="livingrooms" />
-                    <TextField source="img" />
                     <EditButton />
                 </Datagrid>
             )}
@@ -178,13 +176,13 @@ export const ImoveisCreate = props => {
                     {id:'Santana',name:'Santana'},
                     {id:'São Vicente',name:'São Vicente'}
                 ]} />
-                <TextInput source="price" />
                 <SelectInput source="parish" choices={  !locality ? [{ id: 1, name: '' }] : parishes[locality] }/>
-                
+                <TextInput source="price" />
+                <TextInput source="tipology" />
                 <NumberInput source="rooms" />
                 <NumberInput source="bathrooms" />
                 <NumberInput source="livingrooms" />
-                <FileInput source="files" label="Related files" accept="image/png, image/jpeg, image/jpg" >
+                <FileInput source="files" multiple={true} label="Related files" accept="image/png, image/jpeg, image/jpg" >
                     <ImageField source="src" title="title" />
                 </FileInput>
             </SimpleForm>

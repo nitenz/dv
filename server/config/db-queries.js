@@ -22,6 +22,11 @@ module.exports = {
         const values = [user.name, user.email, user.username, user.password, user.mobile_number, user.zip_code, user.vat_number];
         return pool.query(text, values);
       },
+    getUserByFieldAndValue : async function (field, value) {
+      const text = `SELECT * FROM users WHERE ` + field + ` = $1`;
+      const values = [value];
+      return pool.query(text, values);
+    },
     getUser : async function (id) {
         const text = id ? `SELECT * FROM users WHERE id= $1` : `SELECT * FROM users`;
         const values = [id];

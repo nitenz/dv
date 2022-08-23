@@ -20,7 +20,6 @@ import {
 } from 'react-admin';
 
 export const UsersList = (props) => {
-    console.log('props: ', props)
     const isSmall = useMediaQuery(theme => theme.breakpoints.down('sm'));
     return (
         <List>

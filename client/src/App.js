@@ -28,8 +28,19 @@ class App extends React.Component {
     };
 
     this.handleResetEvenFromSubmit = (callBack) => {
-      this.setState({page:'home'})
-      if(callBack) callBack()
+      if(this.state.page === 'createimovel'){
+          fetch('http://localhost:8080/imoveis/')
+          .then(response => response.json())
+          .then(data => {
+              if(data){
+                  this.setState({data, page:'home'})
+                  if(callBack) callBack()
+              }
+          });
+      }else{
+        this.setState({page:'home'})
+        if(callBack) callBack()
+      }
     }
 
     this.handleNavigation = (e) => {
@@ -43,15 +54,13 @@ class App extends React.Component {
   componentDidMount(){
     window.addEventListener("scroll", (e) => this.handleNavigation(e));
 
-    return new Promise((resolve, reject) => {
-      fetch('http://localhost:8080/imoveis/')
-      .then(response => response.json())
-      .then(data => {
-          if(data){
-              this.setState({data})
-          }
-      });
-    })
+    fetch('http://localhost:8080/imoveis/')
+    .then(response => response.json())
+    .then(data => {
+        if(data){
+            this.setState({data})
+        }
+    });
   }
 
   componentWillUnmount(){

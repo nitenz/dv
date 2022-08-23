@@ -41,22 +41,26 @@ const CreateUser = (props) =>{
         };
 
         if(validateFormFields){
-            fetch('http://localhost:8080/add/user', requestOptions)
+            fetch('http://localhost:8080/users', requestOptions)
             .then(response => response.json())
             .then(data => {
                 console.log('id: ', data)
-                alert('user Criado '+ data.id);
-                setFormData({
-                    name:'',
-                    username:'',
-                    password:'',
-                    confirmpassword:'',
-                    email: '',
-                    mobile_number: 0,
-                    zipcode:0,
-                    vatnumber:0
-                })
-                handleEvent();
+                if(data.id){
+                    alert('user Criado com sucesso!');
+                    setFormData({
+                        name:'',
+                        username:'',
+                        password:'',
+                        confirmpassword:'',
+                        email: '',
+                        mobile_number: 0,
+                        zipcode:0,
+                        vatnumber:0
+                    })
+                    handleEvent();
+                }else{
+                    alert(data.message)
+                }
             });
         }else{
             if(validateEmail) alert('Email is inválid!')
@@ -97,12 +101,12 @@ const CreateUser = (props) =>{
                 </div>
 
                 <div className="form-outline mb-4">
-                    <input onChange={handleInput} required type="text" name="password" id="password" className="form-control" />
+                    <input onChange={handleInput} required type="password" name="password" id="password" className="form-control" />
                     <label className="form-label"  htmlFor="password">Password</label>
                 </div>
 
                 <div className="form-outline mb-4">
-                    <input onChange={handleInput} required type="text" name="confirmpassword" id="confirmpassword" className="form-control" />
+                    <input onChange={handleInput} required type="password" name="confirmpassword" id="confirmpassword" className="form-control" />
                     <label className="form-label" htmlFor="confirmpassword">Confirm Password</label>
                 </div>
 

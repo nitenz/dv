@@ -23,7 +23,6 @@ const ContactsTitle = () => {
 };
 
 export const ContactsList = (props) => {
-    console.log('props: ', props)
     const isSmall = useMediaQuery(theme => theme.breakpoints.down('sm'));
     return (
         <List>
