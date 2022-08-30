@@ -57,8 +57,8 @@ module.exports = {
         return id ? pool.query(text, values) : pool.query(text);
     },
     updateImovel:  async function (imovel) {
-        const text = `UPDATE imoveis SET locality = $2, parish = $3, price = $4, tipology = $5, rooms = $6, bathRooms= $7, livingRooms = $8 WHERE id = $1`;
-        const values = [imovel.id, imovel.locality, imove.parish, imovel.price, imovel.tipology, imovel.rooms, imovel.bathRooms, imovel.livingRooms]
+        const text = `UPDATE imoveis SET locality = $2, parish = $3, price = $4, tipology = $5, rooms = $6, bathrooms= $7, livingrooms = $8 WHERE id = $1`;
+        const values = [imovel.id, imovel.locality, imovel.parish, imovel.price, imovel.tipology, imovel.rooms, imovel.bathrooms, imovel.livingrooms]
         return pool.query(text, values);
     },
     deleteImovel: async function (imovelId) {

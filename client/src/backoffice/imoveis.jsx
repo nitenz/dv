@@ -8,9 +8,9 @@ import {
     TextField, 
     ReferenceField, 
     EditButton,
-    useRecordContext,
     Edit,
     FileInput,
+    ImageInput,
     NumberInput,
     ImageField,
     NumberField,
@@ -18,7 +18,10 @@ import {
     SelectInput,
     TextInput,
     Create,
-    useStore 
+    useRedirect,
+    useUpdate,
+    useStore,
+    useRecordContext
 } from 'react-admin';
 
 import { useWatch } from 'react-hook-form';
@@ -109,8 +112,53 @@ export const ImoveisList = (props) => {
     );
 }
 
-export const ImoveisEdit = props => {
-    
+export const ImoveisEdit = ({record}) => {  
+    const redirect = useRedirect();
+
+    const postSave = (data) => {
+        const tempFiles = data.img;
+        const id = data.id;
+        delete data.img;
+
+        async function getImages(imageList){
+            var fd = new FormData();
+            fd.append('id', id);
+
+            console.log('imageList size: ', imageList.length)
+            return new Promise((resolve, reject) => {
+                imageList.map((img,idx)=>{
+                    let title = img.src.search('blob:') > -1 ? img.title : img.src.split(id+'/')[1];
+                    fetch(img.src).then( res => res.blob()).then( blob => {
+                        fd.append('title', title)
+                        fd.append('file', blob);
+                        if(idx === imageList.length-1) resolve(fd)
+                    })
+                })
+            })
+        }
+
+        getImages(tempFiles).then( (fileData) => {
+            const requestOptionsImage = {
+                method: 'POST',
+                body:  fileData
+            };
+
+            fetch('http://localhost:8080/add/images', requestOptionsImage)
+            .then(response => response.json())
+            .then(resp => {
+                const updateOptions = {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify( data )
+                };
+                fetch('http://localhost:8080/imoveis/'+id, updateOptions)
+                .then( res => {
+                    if(res) redirect('list', 'imoveis');
+                })
+            })
+        })
+    };
+
     const localities =  [
         {id:'Câmara de Lobos',name:'Câmara de Lobos'},
         {id:'Funchal',name:'Funchal'},
@@ -126,7 +174,6 @@ export const ImoveisEdit = props => {
 
     const ParishInputs = props => {
         const locality = useWatch({ name: 'locality' });
-        //const values = getValues();
     
         return (
             <SelectInput
@@ -137,18 +184,19 @@ export const ImoveisEdit = props => {
     };
 
     return(
-        <Edit {...props}>
-            <SimpleForm>
+        <Edit>
+            <SimpleForm onSubmit={postSave}>
             <TextField source="id" />
                 <SelectInput source="locality"  choices={toChoices(localities)} />       
                 <ParishInputs source="parish"/>
                 <TextInput source="price" />
+                <TextInput source="tipology" />
                 <NumberInput source="rooms" />
                 <NumberInput source="bathrooms" />
                 <NumberInput source="livingrooms" />
-                <FileInput source="img" label="Related files" accept="image/png, image/jpeg, image/jpg" >
+                <ImageInput source="img" multiple={true} label="Related files" accept="image/png, image/jpeg, image/jpg" >
                     <ImageField source="src" title="title" />
-                </FileInput>
+                </ImageInput>
             </SimpleForm>
         </Edit>
     )
@@ -157,14 +205,65 @@ export const ImoveisEdit = props => {
 
 export const ImoveisCreate = props => {
     const [locality, setLocality] = useStore('imoveis.locality');
-    
+    const redirect = useRedirect();
+
     const handleLocality = (e) => {
         setLocality(e.target.value)
     }
 
+    const postSave = (data) => {
+        const tempFiles = data.img;
+        delete data.img;
+       
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        };
+
+        if(data.locality && data.price && data.tipology){
+            fetch('http://localhost:8080/imoveis', requestOptions)
+            .then(response => response.json())
+            .then(respCreateImovel => {
+                const id = respCreateImovel.data.id;
+
+                async function getImages(imageList){
+                    var fd = new FormData();
+                    fd.append('id', id);
+
+                    return new Promise((resolve, reject) => {
+                        imageList.map((img,idx)=>{
+                            fetch(img.src).then( res => res.blob()).then( blob => {
+                                fd.append('title', img.title)
+                                fd.append('file', blob);
+                                if(idx === imageList.length-1) resolve(fd)
+                            })
+                        })
+                    })
+                }
+                
+                getImages(tempFiles).then( (fileData) => {
+                    const requestOptionsImage = {
+                        method: 'POST',
+                        body:  fileData
+                    };
+        
+                    fetch('http://localhost:8080/add/images', requestOptionsImage)
+                    .then(response => response.json())
+                    .then(resp => {
+                        if(resp.msg){
+                            alert(resp.msg);
+                            redirect('list', 'imoveis');
+                        }
+                    })
+                })
+            });
+        }
+    };
+
     return (
         <Create {...props}>
-            <SimpleForm>
+            <SimpleForm onSubmit={postSave}>
             <TextField source="id" />
                 <SelectInput source="locality" onChange={handleLocality} choices={[
                     {id:'Câmara de Lobos',name:'Câmara de Lobos'},
@@ -182,9 +281,9 @@ export const ImoveisCreate = props => {
                 <NumberInput source="rooms" />
                 <NumberInput source="bathrooms" />
                 <NumberInput source="livingrooms" />
-                <FileInput source="files" multiple={true} label="Related files" accept="image/png, image/jpeg, image/jpg" >
+                <ImageInput source="img" multiple={true} label="Related files" accept="image/png, image/jpeg, image/jpg" >
                     <ImageField source="src" title="title" />
-                </FileInput>
+                </ImageInput>
             </SimpleForm>
         </Create>
     )

@@ -8,7 +8,6 @@ const express = require('express'),
       fs = require('fs'),
       path = require('path'),
       bodyParser = require('body-parser'),
-      nodemailer = require('nodemailer'),
       multer = require('multer'),
       upload = multer(),
       jwt = require('jsonwebtoken'),
@@ -20,7 +19,6 @@ const express = require('express'),
         port: 49153,
       };
 
-
 require('dotenv').config();
 
 const jsonParser = bodyParser.json()
@@ -31,8 +29,8 @@ const saveImoveisImages = (imovelPath, imovel ) => {
   return new Promise((resolve, reject) => {
     let tempFiles = [];
 
-    fs.readdir( path.join(__dirname, imovelPath ), (err, files) => {
-      if(files.length>0){
+    fs.readdir(path.join(__dirname, imovelPath ), (err, files) => {
+      if(files && files.length > 0){
         files.map( (img,idx) => {
           tempFiles.push( {src: 'http://localhost:8080/imoveis/'+imovel.id+'/'+img, title: img.split('.')[0]} )
   
@@ -79,6 +77,7 @@ app.post('/authenticate', jsonParser, (req,res) => {
   dbQueries.getUserByFieldAndValue('username', data.username).then( (user) => {
     const userData = user.rows[0];
   
+    console.log('user: ', userData)
     if(userData.password === data.password){
       const token = jwt.sign(
         {
@@ -103,24 +102,37 @@ app.post('/authenticate', jsonParser, (req,res) => {
 
 app.post('/add/images', upload.array('file'), function (req,res) {
   const imageFiles = req.files,
-        id = req.body.id;
+        id = req.body.id,
+        title = req.body.title,
+        target_path = 'public/imoveis/' + id + '/';
+        
+        fs.readdir(target_path, function(err, files) {
+          
+          if(files && files.length > 0) {
+            fs.rmSync(target_path, { recursive: true })
+          }
+      
+          imageFiles.map( (img, idx) => {
+            const imgTitle = Array.isArray(title) ? title[idx] : title ? title : img.originalname;
+            const filePath = target_path + imgTitle;
+      
+            if(!fs.existsSync(target_path)) fs.mkdirSync(target_path);
 
-  imageFiles.map( (img, idx) => {
-      const target_path = 'public/imoveis/' + id + '/' + img.originalname;
-
-      fs.writeFile( target_path, img.buffer, err => {
-        if (err) {
-          console.error(err);
-        }
-      });
-      if(idx === imageFiles.length-1) res.send({msg: 'Images uploaded!'})
-  })
+            fs.writeFile(filePath, img.buffer, err => {
+              if (err) {
+                console.error(err);
+              }
+            });
+          
+            if(idx === imageFiles.length-1) res.send({msg: 'Images uploaded!'})
+          })
+        })
 });
 
 /****************************** IMOVEIS CRUD  ***********************************/
 app.get('/imoveis/', (req,res) => {
   dbQueries.getImovel().then( imoveisList => { 
-    createImovelData(imoveisList.rows).then( imoveisListWithImages =>{
+    createImovelData(imoveisList.rows).then(imoveisListWithImages =>{
       res.send({data:imoveisListWithImages, total: imoveisListWithImages.length})
     });
   })
@@ -129,12 +141,21 @@ app.get('/imoveis/', (req,res) => {
 app.get('/imoveis/:id', (req,res) => {
   const id = req.params.id;
 
-  dbQueries.getImovel(id).then( data => {
-    createImovelData(data.rows).then( imoveis =>{
+  dbQueries.getImovel(id).then(data => {
+    createImovelData(data.rows).then(imoveis =>{
       res.send({data:imoveis[0]})
     });
   })
 });
+
+app.put('/imoveis/:id', jsonParser, function (req, res) {
+  const data = req.body,
+        id = req.params.id;
+
+  dbQueries.updateImovel(data).then( data => {
+    res.send({data:{id}});
+  })
+})
 
 app.post('/imoveis', jsonParser, function (req, res) {
   const data = req.body;
@@ -145,50 +166,38 @@ app.post('/imoveis', jsonParser, function (req, res) {
           id = imovel.rows[0].id;
 
     fs.mkdirSync(dir);
-
-    if(data.files){
-      data.files.map((img, idx) => {
-        const target_path = 'public/imoveis/' + id + '/' + img.title;
-        
-        fs.writeFile(target_path, img.src, err => {
-          if (err) {
-            console.error(err);
-          }
-        });
-        if(idx === data.files.length-1) res.send({data:{id}})
-    })
-    }else{
-      res.send({data:{id}})
-    }
+  
+    res.send({data:{id}});
   })
 })
 
 app.delete('/imoveis/', jsonParser, function (req, res) {
   const data = req.body.id;
-  let limit = data.length;
-
-  if(Array.isArray(data) ){
-    data.map( (id, idx) => {
+  let limit = data.length-1;
+  
+  if(Array.isArray(data)){
+    let deleteList = [];
+    data.map((id, idx) => {
       const imovelPath = 'public/imoveis/'+id;
-
+      
       dbQueries.deleteImovel(id).then( data => {
         try {
-            fs.rmdirSync(imovelPath, { recursive: true });
-        
+            fs.rmSync(imovelPath, { recursive: true })
+            deleteList.push({id: data.rows[0].id})
             console.log(`${imovelPath} is deleted!`);
         } catch (err) {
             console.error(`Error while deleting ${imovelPath}.`);
         }
       })
       if(idx === limit){
-        res.status(200).send(  {data: {msg: 'Imovel deleted '+ data} });
+        res.status(200).send( {data:deleteList});
       }
     })
   }else{
     dbQueries.deleteImovel(data).then( resp => {
       const imovelPath = 'public/imoveis/'+data;
         try {
-          fs.rm(imovelPath, { recursive: true }, () => {
+          fs.rmSync(imovelPath, { recursive: true }, () => {
             res.status(200).send(  {data: {msg: 'Imovel deleted '+ resp.rows[0]} });
           })
           console.log(`${imovelPath} is deleted!`);

@@ -53,8 +53,7 @@ export const UsersList = (props) => {
 export const UsersEdit = () => (
     <Edit>
         <SimpleForm>
-        <TextField source="id" />
-            <ReferenceField label="id" source="id" reference="id"> </ReferenceField>
+            <TextField disabled source="id" />
             <TextInput source="name" />
             <TextInput source="username" />
             <TextInput source="password" />
@@ -69,8 +68,6 @@ export const UsersEdit = () => (
 export const UsersCreate = props => (
     <Create {...props}>
         <SimpleForm>
-        <TextField source="id" />
-            <ReferenceField label="id" source="id" reference="id"> </ReferenceField>
             <TextInput source="name" />
             <TextInput source="username" />
             <TextInput source="password" />
