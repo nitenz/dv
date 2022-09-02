@@ -1,7 +1,7 @@
 const express = require('express'),
       { Client } = require('pg'),
-      dbQueries = require( './config/db-queries.js'),
-      db = require('./config/db.js'),
+      db = require( './config/db.js'),
+      tableConfig = require('./config/table-config.js'),
       app = express(),
       port = 8080,
       cors = require('cors'),
@@ -36,11 +36,11 @@ const saveImoveisImages = (imovelPath, imovel ) => {
   
           if(idx === files.length-1){
             imovel.img=tempFiles;
-            resolve(imovel)
+            imovel ? resolve(imovel) : reject();
           }
         })
       }else{
-        resolve(imovel)
+        imovel ? resolve(imovel) : reject();
       }
     });
   })
@@ -58,7 +58,7 @@ const createImovelData = (imoveis) => {
         imoveisList.push(imovel);
        
         if(imoveisList.length === nElements){
-          resolve(imoveisList)
+          imoveisList.length > 0 ? resolve(imoveisList) : reject();
         }
       });
     })
@@ -66,7 +66,7 @@ const createImovelData = (imoveis) => {
 }
 
 app.use(cors())
-db.initializeDataTable();
+tableConfig.initializeDataTable();
 
 //turn public imoveis folter
 app.use('/imoveis', express.static('public/imoveis'))
@@ -74,26 +74,32 @@ app.use('/imoveis', express.static('public/imoveis'))
 app.post('/authenticate', jsonParser, (req,res) => {
   const data = req.body;
 
-  dbQueries.getUserByFieldAndValue('username', data.username).then( (user) => {
+  db.getUserByFieldAndValue('username', data.username).then( (user) => {
     const userData = user.rows[0];
   
     console.log('user: ', userData)
     if(userData.password === data.password){
-      const token = jwt.sign(
-        {
-          data: {
-            username: userData.username, 
-            id: userData.id, 
-            email: userData.email,
-            role: 'admin'
-          } 
-        },
-        process.env.JWT_KEY,
-        {
-          expiresIn: "2h",
-        }
-      );
-      res.status(200).send({token});
+      db.getAdmin(userData.id).then(data => {
+        let resp = data;
+        
+        const token = jwt.sign(
+          {
+            data: {
+              username: userData.username, 
+              id: userData.id, 
+              email: userData.email,
+              role: resp.admin_type === 2 ? 'super-admin' : resp.admin_type === 1 ? 'admin' : 'user'
+            } 
+          },
+          process.env.JWT_KEY,
+          {
+            expiresIn: "1h",
+          }
+        );
+        res.status(200).send({token});
+        
+      }) 
+     
     }else{
       res.status(401).send({message:'Invalid password'})
     }
@@ -131,7 +137,7 @@ app.post('/add/images', upload.array('file'), function (req,res) {
 
 /****************************** IMOVEIS CRUD  ***********************************/
 app.get('/imoveis/', (req,res) => {
-  dbQueries.getImovel().then( imoveisList => { 
+  db.getImovel().then( imoveisList => { 
     createImovelData(imoveisList.rows).then(imoveisListWithImages =>{
       res.send({data:imoveisListWithImages, total: imoveisListWithImages.length})
     });
@@ -141,26 +147,26 @@ app.get('/imoveis/', (req,res) => {
 app.get('/imoveis/:id', (req,res) => {
   const id = req.params.id;
 
-  dbQueries.getImovel(id).then(data => {
+  db.getImovel(id).then(data => {
     createImovelData(data.rows).then(imoveis =>{
       res.send({data:imoveis[0]})
     });
   })
 });
 
-app.put('/imoveis/:id', jsonParser, function (req, res) {
+app.put('/imoveis/:id', jsonParser, (req, res) =>  {
   const data = req.body,
         id = req.params.id;
 
-  dbQueries.updateImovel(data).then( data => {
+  db.updateImovel(data).then( data => {
     res.send({data:{id}});
   })
 })
 
-app.post('/imoveis', jsonParser, function (req, res) {
+app.post('/imoveis', jsonParser, (req, res) =>  {
   const data = req.body;
 
-  dbQueries.createImovel(data).then( imovel => {
+  db.createImovel(data).then( imovel => {
     const imovelPath = 'public/imoveis/'+imovel.rows[0].id,
           dir = path.join(__dirname, imovelPath ),
           id = imovel.rows[0].id;
@@ -171,7 +177,7 @@ app.post('/imoveis', jsonParser, function (req, res) {
   })
 })
 
-app.delete('/imoveis/', jsonParser, function (req, res) {
+app.delete('/imoveis/', jsonParser, (req, res) =>  {
   const data = req.body.id;
   let limit = data.length-1;
   
@@ -180,7 +186,7 @@ app.delete('/imoveis/', jsonParser, function (req, res) {
     data.map((id, idx) => {
       const imovelPath = 'public/imoveis/'+id;
       
-      dbQueries.deleteImovel(id).then( data => {
+      db.deleteImovel(id).then( data => {
         try {
             fs.rmSync(imovelPath, { recursive: true })
             deleteList.push({id: data.rows[0].id})
@@ -194,7 +200,7 @@ app.delete('/imoveis/', jsonParser, function (req, res) {
       }
     })
   }else{
-    dbQueries.deleteImovel(data).then( resp => {
+    db.deleteImovel(data).then( resp => {
       const imovelPath = 'public/imoveis/'+data;
         try {
           fs.rmSync(imovelPath, { recursive: true }, () => {
@@ -211,7 +217,7 @@ app.delete('/imoveis/', jsonParser, function (req, res) {
 
 /****************************** USERS CRUD  ***********************************/
 app.get('/users/', (req,res) => {
-  dbQueries.getUser().then( users => {
+  db.getUser().then( users => {
     res.send({data:users.rows, total: users.rowCount})
   })
 });
@@ -219,19 +225,19 @@ app.get('/users/', (req,res) => {
 app.get('/users/:id', (req,res) => {
   const id = req.params.id;
   
-  dbQueries.getUser(id).then( users => {
+  db.getUser(id).then( users => {
     res.send({data:users.rows[0]})
   })
 });
 
-app.post('/users', jsonParser, function (req, res) {
+app.post('/users', jsonParser, (req, res) =>  {
   const data = req.body;
   
-  dbQueries.getUserByFieldAndValue( 'email', data.email).then( userDataEmail => {
+  db.getUserByFieldAndValue( 'email', data.email).then( userDataEmail => {
     if(userDataEmail.rowCount === 0){
-      dbQueries.getUserByFieldAndValue( 'username', data.username).then(userDataUsername => {
+      db.getUserByFieldAndValue( 'username', data.username).then(userDataUsername => {
         if(userDataUsername.rowCount === 0){
-          dbQueries.createUser(data).then( user => {
+          db.createUser(data).then( user => {
             res.send({id: user.rows[0].id});
           })
         }else{
@@ -244,29 +250,29 @@ app.post('/users', jsonParser, function (req, res) {
   })
 })
 
-app.put('/users/:id', jsonParser, function (req, res) {
+app.put('/users/:id', jsonParser, (req, res) =>  {
   const data = req.body;
   const id = req.params.id;
     
-  dbQueries.updateUser(data).then( user => {
+  db.updateUser(data).then( user => {
     res.send({id: user.rows[0]});
   })
 })
 
-app.delete('/users/', jsonParser, function (req, res) {
+app.delete('/users/', jsonParser, (req, res) =>  {
   const data = req.body.id;
   let limit = data.length;
   
   if(Array.isArray(data) ){
     data.map( (id, idx) => {
 
-      dbQueries.deleteUser(id);
+      db.deleteUser(id);
       if(idx === limit){
         res.send( {msg: 'user deleted '+ data });
       }
     })
   }else{
-    dbQueries.deleteUser(data).then( resp => {
+    db.deleteUser(data).then( resp => {
       res.send( {msg: 'user deleted '+ resp.rows[0] });
     })
   }
@@ -277,33 +283,33 @@ app.delete('/users/', jsonParser, function (req, res) {
 app.get('/contacts/', (req,res) => {
   const id = req.params.id || '';
  
-  dbQueries.getContact().then( contact => {
+  db.getContact().then( contact => {
     res.send({data:contact.rows, total: contact.rowCount})
   })
 });
 
-app.post('/add/contact', jsonParser, function (req, res) {
+app.post('/add/contact', jsonParser, (req, res) =>  {
   const data = req.body;
 
-  dbQueries.createContact(data).then( data => {
+  db.createContact(data).then( data => {
     if(data) res.send({message:'sucess!!'})
   })
 })
 
-app.delete('/contacts/', jsonParser, function (req, res) {
+app.delete('/contacts/', jsonParser, (req, res) =>  {
   const data = req.body.id;
   let limit = data.length;
   
   if(Array.isArray(data) ){
     data.map( (id, idx) => {
 
-      dbQueries.deleteContact(id);
+      db.deleteContact(id);
       if(idx === limit){
         res.send( {msg: 'Imovel deleted '+ data });
       }
     })
   }else{
-    dbQueries.deleteContact(data).then( resp => {
+    db.deleteContact(data).then( resp => {
       res.send( {msg: 'Imovel deleted '+ resp.rows[0] });
     })
   }

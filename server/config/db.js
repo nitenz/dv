@@ -11,99 +11,90 @@ const credentials = {
 const pool = new Pool(credentials);
 const client = new Client(credentials);
 
-const createTables = () => {
-
-  const query_imoveis = `
-  CREATE TABLE imoveis (
-      id BIGSERIAL,
-      locality varchar,
-      parish varchar,
-      price varchar,
-      tipology varchar,
-      rooms int,
-      bathrooms int,
-      livingrooms int
-  );
-  `;
-
-  const query_users = `
-  CREATE TABLE users (
-      id BIGSERIAL,
-      created_at TIMESTAMP DEFAULT NOW(),
-      name varchar,
-      username varchar,
-      password varchar,
-      email varchar, 
-      mobile_number int, 
-      zip_code varchar, 
-      vat_number int
-  );
-  `;
-
-  const query_contacts = `
-  CREATE TABLE contacts (
-      id BIGSERIAL,
-      created_at TIMESTAMP DEFAULT NOW(),
-      name varchar,
-      email varchar,
-      message varchar
-  );
-  `;
-
-  const query_admin = `
-  CREATE TABLE admin (
-      id BIGSERIAL,
-      user_id int,
-      admin_type int
-  );
-  `;
-
-  const query_locality = `
-  CREATE TABLE locality (
-      id BIGSERIAL,
-      name varchar
-  );
-  `;
-
-  const query_parish = `
-  CREATE TABLE parish (
-      id BIGSERIAL,
-      id_locality int,
-      name varchar
-  );
-  `;
-
-  const tables= [query_users, query_imoveis, query_admin, query_contacts];
-
-  //Establish connection to database
-  client.connect()
-  tables.forEach( (query, idx) => {
-    client.query(query, (err, res) => {
-        if (err) {
-          console.log(err.stack)
-        } else {
-          console.log(res.rows[0])
-        }
-    })
-  }, () => {
-    client.end()
-    console.log('connection to datable closed')
-  })
-}
 module.exports = {
-  initializeDataTable : (async () => {
-    try{
-      const users = `SELECT * FROM users`;
-      const imoveis = `SELECT * FROM imoveis`;
-  
-      const getUsers = await pool.query(users);
-      const getImoveis = await pool.query(imoveis);
-
-    }catch(err){
-      console.error(err)
-  
-      createTables(client); //Create tables
-      console.log('Tables created!')
-    }
-  })
+    createUser : async function (user) {
+        const text = `
+          INSERT INTO users (name, email, username, password, mobile_number, zip_code, vat_number)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          RETURNING id
+        `;
+        
+        const values = [user.name, user.email, user.username, user.password, user.mobile_number, user.zip_code, user.vat_number];
+        return pool.query(text, values);
+      },
+    getUserByFieldAndValue : async function (field, value) {
+      const text = `SELECT * FROM users WHERE ` + field + ` = $1`;
+      const values = [value];
+      return pool.query(text, values);
+    },
+    getUser : async function (id) {
+        const text = id ? `SELECT * FROM users WHERE id= $1` : `SELECT * FROM users`;
+        const values = [id];
+        return id ? pool.query(text, values) : pool.query(text);
+      },
+    updateUser: async function (user) {
+        const text = `UPDATE users SET name = $2, email = $3, username = $4, password= $5, mobile_number = $6, zip_code = $7, vat_number = $8 WHERE id = $1`;
+        const values = [user.id, user.name, user.email, user.username, user.password, user.mobile_number, user.zip_code, user.vat_number];
+        return pool.query(text, values);
+      },
+    deleteUser: async function (userId) {
+        const text = `DELETE FROM users WHERE id = $1`;
+        const values = [userId];
+        return pool.query(text, values);
+      },
+    createImovel:  async function (imovel) {
+        const text = `
+          INSERT INTO imoveis (locality, parish, price, tipology, rooms, bathrooms, livingrooms)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          RETURNING id
+        `;
+        const values = [imovel.locality, imovel.parish, imovel.price, imovel.tipology, imovel.rooms, imovel.bathrooms, imovel.livingrooms];
+        return pool.query(text, values);
+    },
+    getImovel : async function (id) {
+        const text = id ? `SELECT * FROM imoveis WHERE id= $1` : `SELECT * FROM imoveis`;
+        const values = [id];
+        return id ? pool.query(text, values) : pool.query(text);
+    },
+    updateImovel:  async function (imovel) {
+        const text = `UPDATE imoveis SET locality = $2, parish = $3, price = $4, tipology = $5, rooms = $6, bathrooms= $7, livingrooms = $8 WHERE id = $1`;
+        const values = [imovel.id, imovel.locality, imovel.parish, imovel.price, imovel.tipology, imovel.rooms, imovel.bathrooms, imovel.livingrooms]
+        return pool.query(text, values);
+    },
+    deleteImovel: async function (imovelId) {
+        const text = `DELETE FROM imoveis WHERE id = $1`;
+        const values = [imovelId];
+        return pool.query(text, values);
+    },
+    createContact:  async function (contact) {
+        const text = `
+          INSERT INTO contacts (name, email, message)
+          VALUES ($1, $2, $3)
+          RETURNING id
+        `;
+        const values = [contact.name, contact.email, contact.message];
+        return pool.query(text, values);
+    },
+    getContact : async function (id) {
+        const text = id ? `SELECT * FROM contacts WHERE id= $1` : `SELECT * FROM contacts`;
+        const values = [id];
+        return id ? pool.query(text, values) : pool.query(text);
+    },
+    deleteContact: async function (contactId) {
+        const text = `DELETE FROM contacts WHERE id = $1`;
+        const values = [contactId];
+        return pool.query(text, values);
+    },
+    getAdmin: async function(userId) {
+    const text = `SELECT * FROM admin WHERE id = $1`;
+    const values = [userId];
+    return pool.query(text, values);
+  },addAdmin: async function(userId, admin_type) {
+    const text = `INSERT INTO admin (id, admin_type)
+    VALUES ($1, $2)
+    RETURNING id`;
+    
+    const values = [userId, admin_type];
+    return pool.query(text, values);
+  }
 }

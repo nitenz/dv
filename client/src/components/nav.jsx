@@ -3,9 +3,19 @@ import React from "react";
 import logo from '../imgs/logo.png'
 import imageMenu from '../imgs/menu.png'
 import './nav.scss'
+import authProvider from "../backoffice/authProvider";
+
 const Nav = ( props ) => {
-    const {handleMenuEvent, pagePositionY, handleSideBarMenuEvent, sideMenuOpen } = props;
+    const {handleMenuEvent, pagePositionY, handleSideBarMenuEvent, sideMenuOpen, handleResetEvenFromSubmit} = props;
+    const {username} = localStorage;
     
+    const handleLogout = (e) => {
+        authProvider('AUTH_LOGOUT').then( () => {
+            alert('Logged off!')
+            handleResetEvenFromSubmit();
+        })
+    }
+
     return (
         <nav className={`nav ${pagePositionY > 0 ? 'shrink' : '' }` }>
             <div className={`nav__title ${pagePositionY > 0 ? 'shrink' : '' }` }>
@@ -28,6 +38,9 @@ const Nav = ( props ) => {
                         <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="createimovel">Adicionar Imóvel</a></li>
                         <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="createuser">Criar conta</a></li>
                         <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="admin">BackOffice</a></li>
+                        {
+                            !username ? <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="login">Login</a></li> : <li className="nav__item sidebar" onClick={handleLogout}><a name="logout">Logout</a></li>
+                        }
                     </ul>
                 </div>
             </div>

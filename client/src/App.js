@@ -13,7 +13,8 @@ import Home from './pages/home'
 import RealStatePage from './pages/realstate'
 import Footer from './components/footer'
 import CreateUser from './pages/create-user'
-import CreateImovel from './pages/create-imovel';
+import CreateImovel from './pages/create-imovel'
+import Login from './pages/login'
 
 import { setCurrentUser } from './redux/user/user.actions';
 
@@ -24,7 +25,10 @@ class App extends React.Component {
       page:'home',
       pagePositionY:0,
       sideMenuOpen: false,
-      data: {}
+      data: {},
+      username: localStorage.username || '',
+      role: localStorage.role || '',
+      email: localStorage.email || ''
     };
 
     this.handleResetEvenFromSubmit = (callBack) => {
@@ -67,9 +71,7 @@ class App extends React.Component {
   
   }
   
-  
   render(){
-    
     const handleMenuEvent = (e) => {
       const menuOptionText = e.target.text ? e.target.text.trim() : '';
       let mainMenuOption = '';
@@ -97,12 +99,12 @@ class App extends React.Component {
           {
             this.state.page === 'admin' ? <Admin /> : (
               <div className="site">
-                <Nav handleMenuEvent={handleMenuEvent} pagePositionY={this.state.pagePositionY} handleSideBarMenuEvent={handleSideBarMenuEvent} sideMenuOpen={this.state.sideMenuOpen} />
+                <Nav handleResetEvenFromSubmit={this.handleResetEvenFromSubmit} handleMenuEvent={handleMenuEvent} pagePositionY={this.state.pagePositionY} handleSideBarMenuEvent={handleSideBarMenuEvent} sideMenuOpen={this.state.sideMenuOpen} />
                 
                 { 
                   this.state.page === 'createuser' ?  <CreateUser event={this.handleResetEvenFromSubmit} />  : 
                   this.state.page === 'realstate' ? <RealStatePage data={this.state.data} /> : 
-                  this.state.page === 'createimovel' ? <CreateImovel event={this.handleResetEvenFromSubmit} /> : <Home />
+                  this.state.page === 'createimovel' ? <CreateImovel event={this.handleResetEvenFromSubmit} /> :  this.state.page === 'login' ? <Login handleResetEvenFromSubmit={this.handleResetEvenFromSubmit}/> : <Home />
                 }
               
                 <Footer />

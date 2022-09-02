@@ -8,11 +8,9 @@ import ContactIcon from '@mui/icons-material/Message';
 
 import './admin.scss'
 
-import LoginPage from '../backoffice/login';
-import { Admin, Resource, ListGuesser } from 'react-admin';
+import { Admin, Resource } from 'react-admin';
 
 import dataProvider from '../backoffice/dataProvider';
-//const dataProvider = jsonServerProvider('https://jsonplaceholder.typicode.com');
 
 const AdminPage = () => {
     return(

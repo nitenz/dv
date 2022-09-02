@@ -48,6 +48,12 @@ const RealState = ( props ) => {
                 realstatePropertiesList.push( <CardItem key={idx} item={realStateProperty} /> )
             })
             if(realstatePropertiesList.length === realStateData.imoveisList.length)  return realstatePropertiesList;   
+        }else{
+            return(
+                <div>
+                    <p>NO REALSTATE PROPERTIES FOUND!</p>
+                </div>
+            )
         }
        
     }
@@ -102,7 +108,7 @@ const RealState = ( props ) => {
                     <button onClick={resetFilters} >Reset Filters:</button>
                 </div>
             </div>
-            <div>
+            <div className="card-container">
                 {cardList()}
             </div>
         </div>

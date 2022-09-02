@@ -28,14 +28,17 @@ export default (type, params) => {
     }
     if (type === AUTH_LOGOUT) {
         localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        localStorage.removeItem('username');
+        localStorage.removeItem('email');
         return Promise.resolve();
     }
     if (type === AUTH_CHECK) {
         return localStorage.getItem('token') ? Promise.resolve() : Promise.reject();
     }
-    /*if (type === AUTH_GET_PERMISSIONS) {
+    if (type === AUTH_GET_PERMISSIONS) {
         const role = localStorage.getItem('role');
         return role ? Promise.resolve(role) : Promise.reject();
-    }*/
+    }
     return Promise.reject('Unknown method');
 };

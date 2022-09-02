@@ -12,6 +12,7 @@
 	}
 	.card{
 		padding: 25px;
+		width: 100%;
 		.card-body{
 			
 			h5,p{
@@ -20,12 +21,25 @@
 		}
 	}
 	.filters{
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
 		.filter-container{
 			display: inline-block;
 			padding: 25px;
+			button{
+				margin-top: 30px;
+			}
 			input{
 				width: 250px;
 			}
 		}
+	}
+	.card-container{
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
 	}
 }
