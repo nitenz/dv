@@ -44,11 +44,11 @@ module.exports = {
       },
     createImovel:  async function (imovel) {
         const text = `
-          INSERT INTO imoveis (locality, parish, price, tipology, rooms, bathrooms, livingrooms)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
+          INSERT INTO imoveis (locality, parish, price, tipology, rooms, bathrooms, livingrooms, user_id)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
           RETURNING id
         `;
-        const values = [imovel.locality, imovel.parish, imovel.price, imovel.tipology, imovel.rooms, imovel.bathrooms, imovel.livingrooms];
+        const values = [imovel.locality, imovel.parish, imovel.price, imovel.tipology, imovel.rooms, imovel.bathrooms, imovel.livingrooms, imovel.userId];
         return pool.query(text, values);
     },
     getImovel : async function (id) {
@@ -57,8 +57,8 @@ module.exports = {
         return id ? pool.query(text, values) : pool.query(text);
     },
     updateImovel:  async function (imovel) {
-        const text = `UPDATE imoveis SET locality = $2, parish = $3, price = $4, tipology = $5, rooms = $6, bathrooms= $7, livingrooms = $8 WHERE id = $1`;
-        const values = [imovel.id, imovel.locality, imovel.parish, imovel.price, imovel.tipology, imovel.rooms, imovel.bathrooms, imovel.livingrooms]
+        const text = `UPDATE imoveis SET locality = $2, parish = $3, price = $4, tipology = $5, rooms = $6, bathrooms= $7, livingrooms = $8, user_id = $9 WHERE id = $1`;
+        const values = [imovel.id, imovel.locality, imovel.parish, imovel.price, imovel.tipology, imovel.rooms, imovel.bathrooms, imovel.livingrooms, imovel.userId]
         return pool.query(text, values);
     },
     deleteImovel: async function (imovelId) {
@@ -86,7 +86,7 @@ module.exports = {
         return pool.query(text, values);
     },
     getAdmin: async function(userId) {
-    const text = `SELECT * FROM admin WHERE id = $1`;
+    const text = `SELECT * FROM admin WHERE user_id = $1`;
     const values = [userId];
     return pool.query(text, values);
   },addAdmin: async function(userId, admin_type) {
@@ -96,5 +96,9 @@ module.exports = {
     
     const values = [userId, admin_type];
     return pool.query(text, values);
+  },getImoveisByUser: async function(userId) {
+      const text = `SELECT * FROM imoveis WHERE user_id= $1`;
+      const values = [userId];
+      return pool.query(text, values);
   }
 }

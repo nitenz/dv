@@ -7,7 +7,7 @@ import authProvider from "../backoffice/authProvider";
 
 const Nav = ( props ) => {
     const {handleMenuEvent, pagePositionY, handleSideBarMenuEvent, sideMenuOpen, handleResetEvenFromSubmit} = props;
-    const {username} = localStorage;
+    const {username, role} = localStorage;
     
     const handleLogout = (e) => {
         authProvider('AUTH_LOGOUT').then( () => {
@@ -35,9 +35,22 @@ const Nav = ( props ) => {
                         <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="who" href="#section1">Quem somos</a></li>
                         <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="contacts" href="#section2">Contactos</a></li>
                         <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="realstate" href="#section3">Imóveis</a></li>
-                        <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="createimovel">Adicionar Imóvel</a></li>
-                        <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="createuser">Criar conta</a></li>
-                        <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="admin">BackOffice</a></li>
+                        { 
+                            username ? <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="createimovel">Adicionar Imóvel</a></li> : null
+                        }
+
+                        { 
+                            username ? <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="myimoveis">Meus imóveis</a></li> : null
+                        }
+
+                        {
+                             !username ?   <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="createuser">Criar conta</a></li> : null
+                        }
+                      
+                        {
+                           ( role === 'admin' || role === 'super-admin') && username ? <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="admin">BackOffice</a></li> : null
+                        }
+
                         {
                             !username ? <li className="nav__item sidebar" onClick={handleMenuEvent}><a name="login">Login</a></li> : <li className="nav__item sidebar" onClick={handleLogout}><a name="logout">Logout</a></li>
                         }

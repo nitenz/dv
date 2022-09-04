@@ -12,11 +12,13 @@ const Login = (props) => {
     const handleSubmit = (e) => {
         const { username, password } = formData;
        
-        authProvider('AUTH_LOGIN', {username, password}).then( (data) => {
-                alert('Welcome ', localStorage.username);
+            authProvider('AUTH_LOGIN', {username, password})
+            .then( () => {
                 handleResetEvenFromSubmit();
-        })
-
+            }).catch(err => {
+                alert(err.message + ': Invalid credentials!');
+            })
+       
         e.preventDefault();
     }
 

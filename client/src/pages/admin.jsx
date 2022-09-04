@@ -15,9 +15,17 @@ import dataProvider from '../backoffice/dataProvider';
 const AdminPage = () => {
     return(
         <Admin authProvider={authProvider} dataProvider={dataProvider}>
-            <Resource name="imoveis" icon={ImoveisIcon} list={ImoveisList} edit={ImoveisEdit} create={ImoveisCreate}  />
-            <Resource name="users" icon={UserIcon} list={UsersList} edit={UsersEdit} create={UsersCreate}  />
-            <Resource name="contacts" icon={ContactIcon} list={ContactsList} />
+            {permissions => [
+                // Restrict access to the edit and remove views to admin only
+                <Resource name="imoveis" icon={ImoveisIcon} list={ImoveisList} edit={ImoveisEdit} create={ImoveisCreate}  />,
+                // Only include the categories resource for admin users
+                permissions === 'admin' || permissions === 'super-admin'
+                    ?  <Resource name="users" icon={UserIcon} list={UsersList} edit={UsersEdit} create={UsersCreate}  />
+                    : null,
+                permissions === 'admin' || permissions === 'super-admin'
+                    ?   <Resource name="contacts" icon={ContactIcon} list={ContactsList} />
+                    : null,
+            ]}
         </Admin>
     )
 }

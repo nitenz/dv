@@ -23,6 +23,7 @@ export default (type, params) => {
                 localStorage.setItem('role', decodedToken.data.role);
                 localStorage.setItem('username', decodedToken.data.username);
                 localStorage.setItem('email', decodedToken.data.email);
+                localStorage.setItem('id', decodedToken.data.id);
                 return Promise.resolve();
             });
     }
@@ -31,6 +32,7 @@ export default (type, params) => {
         localStorage.removeItem('role');
         localStorage.removeItem('username');
         localStorage.removeItem('email');
+        localStorage.removeItem('id');
         return Promise.resolve();
     }
     if (type === AUTH_CHECK) {

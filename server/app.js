@@ -80,15 +80,22 @@ app.post('/authenticate', jsonParser, (req,res) => {
     console.log('user: ', userData)
     if(userData.password === data.password){
       db.getAdmin(userData.id).then(data => {
-        let resp = data;
-        
+        let resp = data.rows[0];
+        let role =  '';
+
+        if(resp && resp.admin_type){
+          role = resp.admin_type === 2 ? 'super-admin' : 'admin';
+        }else{
+          role = 'user';
+        }
+    
         const token = jwt.sign(
           {
             data: {
               username: userData.username, 
               id: userData.id, 
               email: userData.email,
-              role: resp.admin_type === 2 ? 'super-admin' : resp.admin_type === 1 ? 'admin' : 'user'
+              role
             } 
           },
           process.env.JWT_KEY,
@@ -97,7 +104,6 @@ app.post('/authenticate', jsonParser, (req,res) => {
           }
         );
         res.status(200).send({token});
-        
       }) 
      
     }else{
@@ -215,6 +221,7 @@ app.delete('/imoveis/', jsonParser, (req, res) =>  {
 })
 /****************************** END IMOVEIS CRUD  ***********************************/
 
+
 /****************************** USERS CRUD  ***********************************/
 app.get('/users/', (req,res) => {
   db.getUser().then( users => {
@@ -222,13 +229,22 @@ app.get('/users/', (req,res) => {
   })
 });
 
-app.get('/users/:id', (req,res) => {
+app.get('/users/imoveis/:id', (req,res) => {
   const id = req.params.id;
-  
-  db.getUser(id).then( users => {
-    res.send({data:users.rows[0]})
+  db.getImoveisByUser(id).then( response => {
+    createImovelData(response.rows).then( data => {
+      res.send({data:data.rows}) 
+    })
   })
 });
+
+app.get('/users/:id/', (req,res) => {
+  const id = req.params.id;
+    db.getUser(id).then( users => {
+      res.send({data:users.rows[0]})
+    })
+});
+
 
 app.post('/users', jsonParser, (req, res) =>  {
   const data = req.body;

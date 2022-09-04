@@ -1,13 +1,13 @@
 import React, { useEffect,useState } from 'react';
 import './create-imovel.scss'
 import LoadingSpinner from '../components/spinner'
-import uploadImageLogo from '../imgs/menu.png'
 
 const CreateImovel = (props) => {
     const handleEvent = props.event,
     [isLoading, setIsLoading] = useState(false),
     [ parishList, setParishList] = useState([]),
     [ formData, setFormData ] = useState({
+        userId: '',
         locality:'',
         price:'',
         tipology:'',
@@ -78,18 +78,20 @@ const CreateImovel = (props) => {
       }, [])
 
     const handleSubmit = (e) => {
+        formData.userId= props.userId;
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify( formData )
         };
         if(formData.locality && formData.price && formData.tipology){
+            setIsLoading(true);
+
             fetch('http://localhost:8080/imoveis', requestOptions)
             .then(response => response.json())
             .then(data => {
                 const id = data.data.id;
                 var dataToSubmit = new FormData();
-                setIsLoading(true);
                 dataToSubmit.append('id',id)
                 formData.imgfiles.map(img=>{
                     dataToSubmit.append('file',img)

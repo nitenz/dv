@@ -1,0 +1,13 @@
+.my-imoveis-galery{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    padding:25px;
+    .card{
+        margin:15px;
+        width: 80%;
+        align-items: center;
+    }
+}

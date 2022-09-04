@@ -15,8 +15,9 @@ import Footer from './components/footer'
 import CreateUser from './pages/create-user'
 import CreateImovel from './pages/create-imovel'
 import Login from './pages/login'
+import MyImoveis from './pages/my-imoveis'
 
-import { setCurrentUser } from './redux/user/user.actions';
+import { setCurrentUser } from './redux/user/user.actions'
 
 class App extends React.Component {
   constructor(props) {
@@ -26,13 +27,14 @@ class App extends React.Component {
       pagePositionY:0,
       sideMenuOpen: false,
       data: {},
+      userId: localStorage.id || '',
       username: localStorage.username || '',
       role: localStorage.role || '',
       email: localStorage.email || ''
     };
 
     this.handleResetEvenFromSubmit = (callBack) => {
-      if(this.state.page === 'createimovel'){
+      if(this.state.page === 'createimovel'){    
           fetch('http://localhost:8080/imoveis/')
           .then(response => response.json())
           .then(data => {
@@ -49,14 +51,13 @@ class App extends React.Component {
 
     this.handleNavigation = (e) => {
       const window = e.currentTarget;
-  
       this.setState( {pagePositionY: window.scrollY} )
     };
   }
 
 
   componentDidMount(){
-    window.addEventListener("scroll", (e) => this.handleNavigation(e));
+    window.addEventListener('scroll', (e) => this.handleNavigation(e));
 
     fetch('http://localhost:8080/imoveis/')
     .then(response => response.json())
@@ -104,7 +105,8 @@ class App extends React.Component {
                 { 
                   this.state.page === 'createuser' ?  <CreateUser event={this.handleResetEvenFromSubmit} />  : 
                   this.state.page === 'realstate' ? <RealStatePage data={this.state.data} /> : 
-                  this.state.page === 'createimovel' ? <CreateImovel event={this.handleResetEvenFromSubmit} /> :  this.state.page === 'login' ? <Login handleResetEvenFromSubmit={this.handleResetEvenFromSubmit}/> : <Home />
+                  this.state.page === 'myimoveis' ? <MyImoveis data={this.state.data} userId={ this.state.userId} /> : 
+                  this.state.page === 'createimovel' ? <CreateImovel userId={this.state.userId} event={this.handleResetEvenFromSubmit} /> :  this.state.page === 'login' ? <Login handleResetEvenFromSubmit={this.handleResetEvenFromSubmit}/> : <Home />
                 }
               
                 <Footer />

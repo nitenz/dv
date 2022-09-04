@@ -16,6 +16,7 @@ const createTables = () => {
   const query_imoveis = `
   CREATE TABLE imoveis (
       id BIGSERIAL,
+      user_id int,
       locality varchar,
       parish varchar,
       price varchar,
@@ -55,21 +56,6 @@ const createTables = () => {
       id BIGSERIAL,
       user_id int,
       admin_type int
-  );
-  `;
-
-  const query_locality = `
-  CREATE TABLE locality (
-      id BIGSERIAL,
-      name varchar
-  );
-  `;
-
-  const query_parish = `
-  CREATE TABLE parish (
-      id BIGSERIAL,
-      id_locality int,
-      name varchar
   );
   `;
 
