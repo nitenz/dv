@@ -14,9 +14,9 @@ const express = require('express'),
       credentials = {
         user: 'postgres',
         host: 'host.docker.internal',
-        database: 'imobiliaria',
-        password: 'postgrespw',
-        port: 49153,
+        database: 'postgres',
+        password: 'postgres',
+        port: 5432,
       };
 
 require('dotenv').config();

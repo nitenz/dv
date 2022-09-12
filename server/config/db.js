@@ -3,9 +3,9 @@ const { Pool, Client } = require("pg");
 const credentials = {
   user: 'postgres',
   host: 'host.docker.internal',
-  database: 'imobiliaria',
-  password: 'postgrespw',
-  port: 49153,
+  database: 'postgres',
+  password: 'postgres',
+  port: 5432,
 };
 
 const pool = new Pool(credentials);
@@ -48,7 +48,8 @@ module.exports = {
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
           RETURNING id
         `;
-        const values = [imovel.locality, imovel.parish, imovel.price, imovel.tipology, imovel.rooms, imovel.bathrooms, imovel.livingrooms, imovel.userId];
+        console.log('create imovel data: ', imovel)
+        const values = [imovel.locality, imovel.parish, imovel.price, imovel.tipology, Number(imovel.rooms), Number(imovel.bathrooms), Number(imovel.livingrooms), Number(imovel.userId)];
         return pool.query(text, values);
     },
     getImovel : async function (id) {

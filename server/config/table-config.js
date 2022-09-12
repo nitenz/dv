@@ -3,9 +3,9 @@ const { Pool, Client } = require("pg");
 const credentials = {
   user: 'postgres',
   host: 'host.docker.internal',
-  database: 'imobiliaria',
-  password: 'postgrespw',
-  port: 49153,
+  database: 'postgres',
+  password: 'postgres',
+  port: 5432,
 };
 
 const pool = new Pool(credentials);

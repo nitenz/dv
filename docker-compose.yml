@@ -2,14 +2,10 @@ version: "3"
 services:
       client:
           image: client
-          build: 
-            dockerfile: ./client/Dockerfile
+          build: /client
           container_name: client
           ports:
               - "3000:3000"        
-          volumes: 
-              - ./:/client
-              - /client/node_modules
       db:
         image: postgres:14.1-alpine
         restart: always
@@ -19,10 +15,9 @@ services:
         ports:
           - '5432:5432'
         volumes: 
-          - db:/server/data
+          - db:/data
       server:
-        build: 
-          dockerfile: ./server/Dockerfile
+        build: /server
         container_name: server
         image: server
         depends_on:
@@ -38,8 +33,6 @@ services:
           DB_NAME: postgres
         links:
           - db
-        volumes:
-          - './:/server'
 volumes:
   db:
     driver: local

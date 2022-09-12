@@ -1,15 +1,13 @@
 #Each instruction in this file creates a new layer
 #Here we are getting our node as Base image
 FROM node:latest
-#Creating a new directory for app files and setting path in the container
-RUN mkdir -p /server
 #setting working directory in the container
 WORKDIR /server
-COPY /server/package.json /server
-COPY /server/yarn.lock /server
+COPY package.json .
+COPY yarn.lock .
 RUN npm install -g
 RUN yarn install
-COPY . .
+COPY . ./
 #container exposed network port number
 EXPOSE 8080
 #command to run within the container
