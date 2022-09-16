@@ -49,6 +49,7 @@
     flex-direction: row;
     justify-content: center;
 	transition: all 0.2s ease;
+	cursor: pointer;
 	&.shrink{
 		height: 100%;
 		background-color: rgba(32,32,50,1);

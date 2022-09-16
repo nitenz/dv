@@ -12,17 +12,17 @@ const Home = () => {
             </div>
             
             <section className="section">
-                <h2>Imóveis em destaque</h2>
+                <h2>Favorites</h2>
                 <ImageGalery />
             </section>
                     
             <section id="section1" name="section3"className="section">
-                <h2>Quem somos</h2>
+                <h2>Who we are</h2>
                 <WhoPage />
             </section>
 
             <section id="section2" name="section3" className="section">
-                <h2>Contactos</h2>
+                <h2>Contacts</h2>
                 <ContactsPage />
             </section>
 

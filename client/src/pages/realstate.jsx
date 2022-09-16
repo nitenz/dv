@@ -84,7 +84,7 @@ const RealState = ( props ) => {
 
     return(
         <div className="realstate">
-            <h1>Imóveis</h1>
+            <h1>Realstate properties list</h1>
             <div className="filters">
                 <div className="filter-container">
                     <label className="form-label" htmlFor="locality">Concelho</label><br/>
